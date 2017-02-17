@@ -288,6 +288,12 @@ public class NetCom : MonoBehaviour
                     case 4:
                         Debug.Log(string.Format("Receive {0} instructs", ReceiveBundle<Instr>(stream)));
                         break;
+                    case 300:
+                        Debug.Log("The winner is 0");
+                        break;
+                    case 301:
+                        Debug.Log("The winner is 1");
+                        break;
                     default:
                         Debug.LogError("Wrong Package " + responseType);
                         break;
