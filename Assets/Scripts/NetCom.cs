@@ -263,8 +263,8 @@ public class NetCom : MonoBehaviour
         NetworkStream stream = client.GetStream();
         Debug.Log("Connection established");
 
-        int No = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
-        Debug.Log("Got communication No " + No);
+        //int No = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
+        //Debug.Log("Got communication No " + No);
 
         try
         {
