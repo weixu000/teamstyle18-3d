@@ -9,7 +9,7 @@ public class RandomPlants : MonoBehaviour {
         {
             int n = (int)(Random.value * Plants.Length);
             Vector3 pos = new Vector3(Random.Range(0, 1000), 0, Random.Range(0, 1000));
-            Instantiate(Plants[n], pos, Quaternion.identity);
+            Instantiate(Plants[n], pos, Quaternion.identity, transform);
         }
 	}
 }
