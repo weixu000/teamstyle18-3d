@@ -3,9 +3,7 @@
 public class DestroyableControl : UnitControl
 {
     [HideInInspector]
-    public float currentHP;
-    [HideInInspector]
-    public float maxHP;
+    public float currentHP, maxHP;
 
     UILabel posLabel, hpLabel;
     UISlider hpSlider;

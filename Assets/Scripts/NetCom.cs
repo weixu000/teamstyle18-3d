@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Net;
 using System.Threading;
 using System.Collections;
+using System.IO;
 using System;
 
 public enum UnitType
@@ -138,17 +139,20 @@ public class NetCom : MonoBehaviour
 {
     public int port;
     public byte[] addr = { 127, 0, 0, 1 };
+    public string fileName;
+
+    public RoleStateUI player1, player2;
+    public GameObject[] unitPrefabs;
 
     bool pause = false;
 
     Queue responses = new Queue();
 
-    public RoleStateUI player1, player2;
-    public GameObject[] unitPrefabs;
+    Thread thread;
 
     void Start()
     {
-        Thread thread = new Thread(Communicate);
+        thread = new Thread(Communicate);
         thread.Start();
     }
 
@@ -245,8 +249,8 @@ public class NetCom : MonoBehaviour
             else if(response is Instr)
             {
                 Instr ins = (Instr)response;
-                GameObject unit = GameObject.Find(ins.the_unit_id.ToString());
-                if(unit != null && (ins.instruction_type == 1 || ins.instruction_type == 2))
+                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                if(unit != null && target != null && (ins.instruction_type == 1 || ins.instruction_type == 2))
                 {
                     unit.GetComponent<InvasiveControl>().Fire(ins.target_id_building_id);
                 }
@@ -255,16 +259,14 @@ public class NetCom : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        thread.Abort();
+    }
+
     void Communicate()
     {
-        TcpClient client = new TcpClient(AddressFamily.InterNetwork);
-        IPAddress remoteHost = new IPAddress(addr);
-        client.Connect(remoteHost, port);
-        NetworkStream stream = client.GetStream();
-        Debug.Log("Connection established");
-
-        //int No = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
-        //Debug.Log("Got communication No " + No);
+        Stream stream = StartFormFile();
 
         try
         {
@@ -274,41 +276,44 @@ public class NetCom : MonoBehaviour
                 switch (responseType)
                 {
                     case 0:
-                        ReceiveBundle<UnitState>(stream);
-                        Debug.Log("Receive unit states");
+                        //ReceiveBundle<UnitState>(stream);
+                        Debug.Log(string.Format("Receive {0} unit states", ReceiveBundle<UnitState>(stream)));
                         break;
                     case 1:
                         Receive<Buff>(stream);
-                        Debug.Log(string.Format("Receive buff"));
+                        Debug.Log("Receive buff");
                         break;
                     case 2:
                         Receive<PlayerState>(stream);
-                        Debug.Log(string.Format("Receive player states"));
+                        Debug.Log("Receive player state");
                         break;
                     case 4:
-                        Debug.Log(string.Format("Receive {0} instructs", ReceiveBundle<Instr>(stream)));
+                        Debug.Log(string.Format("Receive {0} instrs", ReceiveBundle<Instr>(stream)));
                         break;
                     case 300:
                         Debug.Log("The winner is 0");
-                        break;
+                        return;
                     case 301:
                         Debug.Log("The winner is 1");
-                        break;
+                        return;
                     default:
                         Debug.LogError("Wrong Package " + responseType);
                         break;
                 }
             }
         }
+        catch(Exception e)
+        {
+            Debug.Log(e);
+        }
         finally
         {
             stream.Close();
-            client.Close();
             Debug.Log("Communication Stopped");
         }
     }
 
-    int ReceiveBundle<ResponseType>(NetworkStream stream)
+    int ReceiveBundle<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         int n = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
@@ -320,7 +325,7 @@ public class NetCom : MonoBehaviour
         return n;
     }
 
-    void Receive<ResponseType>(NetworkStream stream)
+    void Receive<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         int responseSize = Marshal.SizeOf(new ResponseType());
@@ -337,14 +342,39 @@ public class NetCom : MonoBehaviour
         }
     }
 
-    byte[] ReceiveBytes(NetworkStream stream, int size)
+    byte[] ReceiveBytes(Stream stream, int size)
     {
         byte[] part = new byte[size];
         int partSize = 0;
         while (partSize != size)
         {
             partSize += stream.Read(part, partSize, size - partSize);
+            if (partSize == 0)
+            {
+                throw new Exception("Reach the end of stream");
+            }
         }
         return part;
+    }
+
+    Stream StartFormFile()
+    {
+        FileStream stream = File.Open(fileName, FileMode.Open);
+        Debug.Log("File opened");
+        return stream;
+    }
+
+    Stream StartFromTCP()
+    {
+        TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+        IPAddress remoteHost = new IPAddress(addr);
+        client.Connect(remoteHost, port);
+        NetworkStream stream = client.GetStream();
+        Debug.Log("Connection established");
+
+        int No = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
+        Debug.Log("Got communication No " + No);
+
+        return stream;
     }
 }
