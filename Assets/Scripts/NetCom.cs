@@ -275,19 +275,19 @@ public class NetCom : MonoBehaviour
                 int responseType = BitConverter.ToInt32(ReceiveBytes(stream, sizeof(int)), 0);
                 switch (responseType)
                 {
-                    case 0:
+                    case 12345:
                         //ReceiveBundle<UnitState>(stream);
                         Debug.Log(string.Format("Receive {0} unit states", ReceiveBundle<UnitState>(stream)));
                         break;
-                    case 1:
+                    case 123456:
                         Receive<Buff>(stream);
                         Debug.Log("Receive buff");
                         break;
-                    case 2:
+                    case 1234567:
                         Receive<PlayerState>(stream);
                         Debug.Log("Receive player state");
                         break;
-                    case 4:
+                    case 12345678:
                         Debug.Log(string.Format("Receive {0} instrs", ReceiveBundle<Instr>(stream)));
                         break;
                     case 300:
