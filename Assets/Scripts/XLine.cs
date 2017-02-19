@@ -11,12 +11,17 @@ public class XLine : MonoBehaviour {
 
     void OnEnable()
     {
+        AudioSource audio = GetComponent<AudioSource>();
+        if (audio != null)
+        {
+            audio.Play();
+        }
         StartCoroutine("WaitToDisable");
     }
 
     void Update()
     {
-        Vector3 Sc = new Vector3(0.5f, 0, 0.5f);// 变换大小
+        var Sc = new Vector3(0.5f, 0, 0.5f);
 
         foreach (var hit in Physics.RaycastAll(transform.position, transform.forward))
         {
@@ -28,10 +33,10 @@ public class XLine : MonoBehaviour {
                     line.transform.localScale = Sc;
                 }
 
-                hitPoint.transform.position = hit.point;//让激光击中物体的粒子效果的空间位置与射线碰撞的点的空间位置保持一致；
+                hitPoint.transform.position = hit.point;
                 hitPoint.SetActive(true);
 
-                break;
+                return;
             }
         }
 
