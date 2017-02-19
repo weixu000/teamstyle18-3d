@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 
 public class FreeCamera : MonoBehaviour {
-    public float moveSpeed = 10f, rotationSpeed = 5f, zoomSpeed = 50f;
+    public float moveSpeed, rotationSpeed, zoomSpeed;
+    public float maxY, minY;
     public Transform map;
 
     float deltX;
@@ -18,7 +19,7 @@ public class FreeCamera : MonoBehaviour {
         deltY = transform.root.eulerAngles.x;
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (Input.GetMouseButton(0))
         {
@@ -33,6 +34,11 @@ public class FreeCamera : MonoBehaviour {
         transform.Translate(moveVector * moveSpeed * transform.position.y, Space.World);
 
         transform.Translate(transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * transform.position.y, Space.World);
+
+        transform.position = new Vector3(
+            Mathf.Clamp(transform.position.x, 0, map.lossyScale.x),
+            Mathf.Clamp(transform.position.y, minY, maxY),
+            Mathf.Clamp(transform.position.z, 0, map.lossyScale.y));
 
         if (Input.GetKeyDown(KeyCode.R))
         {
