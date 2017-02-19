@@ -27,13 +27,14 @@ public class FreeCamera : MonoBehaviour {
             transform.rotation = Quaternion.Euler(deltY, deltX, 0);
         }
 
-        var moveVector = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, 0, Input.GetAxis("Vertical") * moveSpeed);
         if (Input.GetMouseButton(1))
         {
-            transform.Translate(-moveVector, Space.World);
+            var moveVector = transform.right * Input.GetAxis("Horizontal") * moveSpeed + new Vector3(transform.forward.x, 0, transform.forward.z) * Input.GetAxis("Vertical") * moveSpeed;
+            transform.Translate(moveVector, Space.World);
         }
         else
         {
+            var moveVector = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, 0, Input.GetAxis("Vertical") * moveSpeed);
             transform.Translate(moveVector, Space.Self);
         }
 
