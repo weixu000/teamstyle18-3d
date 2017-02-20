@@ -24,14 +24,14 @@ public class DestroyableControl : UnitControl
         currentHP = state.health_now;
         maxHP = state.max_health_now;
         hpSlider.value = currentHP / maxHP;
-        hpLabel.text = (100 * currentHP / maxHP).ToString() + "%";
+        hpLabel.text = (100 * currentHP / maxHP).ToString("F") + "%";
         if (currentHP == 0)
             Die();
     }
 
     protected virtual void Die()
     {
-        Destroy(gameObject, 2f);
+        Destroy(gameObject, 1f);
         if(boom != null)
         {
             boom.SetActive(true);

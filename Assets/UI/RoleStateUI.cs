@@ -28,7 +28,7 @@ public class RoleStateUI : MonoBehaviour
     {
         float hppercent = currentHP / maxHP;
         hpSlider.value = hppercent;
-        hpPercentLabel.text = (hppercent * 100).ToString() + "%";
+        hpPercentLabel.text = (hppercent * 100).ToString("F") + "%";
 
         PeopleLabel.text = currentPeople.ToString();
 

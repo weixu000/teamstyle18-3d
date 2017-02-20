@@ -36,9 +36,9 @@ public class FreeCamera : MonoBehaviour {
         transform.Translate(transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * transform.position.y, Space.World);
 
         transform.position = new Vector3(
-            Mathf.Clamp(transform.position.x, 0, map.lossyScale.x),
+            Mathf.Clamp(transform.position.x, 0, 500),
             Mathf.Clamp(transform.position.y, minY, maxY),
-            Mathf.Clamp(transform.position.z, 0, map.lossyScale.y));
+            Mathf.Clamp(transform.position.z, 0, 500));
 
         if (Input.GetKeyDown(KeyCode.R))
         {

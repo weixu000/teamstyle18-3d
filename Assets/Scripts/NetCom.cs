@@ -56,14 +56,14 @@ public struct Position
 
     public Vector3 Random()
     {
-        float randx = UnityEngine.Random.Range(0, 10);
-        float randy = UnityEngine.Random.Range(0, 10);
-        return new Vector3(10 * x + randx, 0, 10 * y + randy);
+        float randx = UnityEngine.Random.Range(0, 5);
+        float randy = UnityEngine.Random.Range(0, 5);
+        return new Vector3(5 * x + randx, 0, 5 * y + randy);
     }
 
     public Vector3 Center()
     {
-        return new Vector3(10 * x + 5f, 0, 10 * y + 5f);
+        return new Vector3(5 * x + 2.5f, 0, 5 * y + 2.5f);
     }
 
     public bool Inside(Vector3 vec)
@@ -232,17 +232,15 @@ public class NetCom : MonoBehaviour
 
                 if (unit == null)
                 {
-                    if (s.unit_type == UnitType.BASE || s.unit_type == UnitType.BUILDING)
-                        // 建筑居于格子正中
-                        unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), unitPrefabs[(int)s.unit_name].transform.rotation);
-                    else
-                    {
+                    //if (s.unit_type == UnitType.BASE || s.unit_type == UnitType.BUILDING)
+                    //    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), unitPrefabs[(int)s.unit_name].transform.rotation);
+                    //else
+                    //{
                         // 随机一个方向、位置
                         Vector2 rand = UnityEngine.Random.insideUnitCircle;
                         Vector3 direction = new Vector3(rand.x, 0, rand.y);
                         unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
-                    }
-
+                    //}
                 }
                 unit.GetComponent<UnitControl>().SetState(s);
             }
@@ -276,7 +274,6 @@ public class NetCom : MonoBehaviour
                 switch (responseType)
                 {
                     case 12345:
-                        //ReceiveBundle<UnitState>(stream);
                         Debug.Log(string.Format("Receive {0} unit states", ReceiveBundle<UnitState>(stream)));
                         break;
                     case 123456:
