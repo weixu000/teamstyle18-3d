@@ -245,7 +245,15 @@ public class NetCom : MonoBehaviour
                 if (unit == null)
                 {
                     var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
-                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
+                    if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
+                    {
+                        unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
+                    }
+                    else
+                    {
+                        unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
+                    }
+
                 }
                 unit.GetComponent<UnitControl>().SetState(s);
             }
@@ -264,6 +272,14 @@ public class NetCom : MonoBehaviour
                 var end = (EndState)response;
                 var control = GameObject.Find(end.flag.ToString()).GetComponent<DestroyableControl>();
                 control.SetHP(0, control.maxHP);
+                if (end.flag == 0)
+                {
+                    player1.currentHP = 0;
+                }
+                else
+                {
+                    player2.currentHP = 0;
+                }
             }
         }
     }
