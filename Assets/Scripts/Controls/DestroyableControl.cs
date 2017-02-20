@@ -21,12 +21,8 @@ public class DestroyableControl : UnitControl
     {
         base.SetState(state);
         posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
-        currentHP = state.health_now;
-        maxHP = state.max_health_now;
-        hpSlider.value = currentHP / maxHP;
-        hpLabel.text = (100 * currentHP / maxHP).ToString("F") + "%";
-        if (currentHP == 0)
-            Die();
+
+        SetHP(state.health_now, state.max_health_now);
     }
 
     protected virtual void Die()
@@ -37,5 +33,15 @@ public class DestroyableControl : UnitControl
             boom.SetActive(true);
         }
         Debug.Log(name + " is dead");
+    }
+
+    public void SetHP(float now,float max)
+    {
+        currentHP = now;
+        maxHP = max;
+        hpSlider.value = currentHP / maxHP;
+        hpLabel.text = (100 * currentHP / maxHP).ToString("F") + "%";
+        if (currentHP == 0)
+            Die();
     }
 }

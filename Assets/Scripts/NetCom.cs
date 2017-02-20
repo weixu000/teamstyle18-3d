@@ -135,11 +135,23 @@ public class Buff
     public float[] data;
 };
 
+[Serializable]
+[StructLayout(LayoutKind.Sequential)]
+public class EndState
+{
+    public int flag;
+
+    public EndState(int _flag)
+    {
+        flag = _flag;
+    }
+};
+
 public class NetCom : MonoBehaviour
 {
     public int port;
     public byte[] addr = { 127, 0, 0, 1 };
-    public string fileName;
+    public static string fileName;
 
     public RoleStateUI player1, player2;
     public GameObject[] unitPrefabs;
@@ -232,27 +244,26 @@ public class NetCom : MonoBehaviour
 
                 if (unit == null)
                 {
-                    //if (s.unit_type == UnitType.BASE || s.unit_type == UnitType.BUILDING)
-                    //    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), unitPrefabs[(int)s.unit_name].transform.rotation);
-                    //else
-                    //{
-                        // 随机一个方向、位置
-                        Vector2 rand = UnityEngine.Random.insideUnitCircle;
-                        Vector3 direction = new Vector3(rand.x, 0, rand.y);
-                        unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
-                    //}
+                    var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
+                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
                 }
                 unit.GetComponent<UnitControl>().SetState(s);
             }
             else if(response is Instr)
             {
-                Instr ins = (Instr)response;
+                var ins = (Instr)response;
                 GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
                 if(unit != null && target != null && (ins.instruction_type == 1 || ins.instruction_type == 2))
                 {
                     unit.GetComponent<InvasiveControl>().Fire(ins.target_id_building_id);
                 }
 
+            }
+            else if(response is EndState)
+            {
+                var end = (EndState)response;
+                var control = GameObject.Find(end.flag.ToString()).GetComponent<DestroyableControl>();
+                control.SetHP(0, control.maxHP);
             }
         }
     }
@@ -288,9 +299,17 @@ public class NetCom : MonoBehaviour
                         Debug.Log(string.Format("Receive {0} instrs", ReceiveBundle<Instr>(stream)));
                         break;
                     case 300:
+                        lock (responses)
+                        {
+                            responses.Enqueue(new EndState(0));
+                        }
                         Debug.Log("The winner is 0");
                         return;
                     case 301:
+                        lock (responses)
+                        {
+                            responses.Enqueue(new EndState(1));
+                        }
                         Debug.Log("The winner is 1");
                         return;
                     default:
