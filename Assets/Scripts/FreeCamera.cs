@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 
 public class FreeCamera : MonoBehaviour {
-    public float moveSpeed = 10f;
-    public float rotationSpeed = 5f;
+    public float moveSpeed, rotationSpeed, zoomSpeed;
+    public float maxY, minY;
+    public Transform map;
 
-    float deltX = 0f;
-    float deltY = 0f;
+    float deltX;
+    float deltY;
 
     Vector3 initialPos;
     Quaternion initialRot;
@@ -14,9 +15,11 @@ public class FreeCamera : MonoBehaviour {
     {
         initialPos = transform.position;
         initialRot = transform.rotation;
+        deltX = transform.root.eulerAngles.y;
+        deltY = transform.root.eulerAngles.x;
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (Input.GetMouseButton(0))
         {
@@ -27,18 +30,16 @@ public class FreeCamera : MonoBehaviour {
             transform.rotation = Quaternion.Euler(deltY, deltX, 0);
         }
 
-        if (Input.GetMouseButton(1))
-        {
-            var moveVector = transform.right * Input.GetAxis("Horizontal") * moveSpeed + new Vector3(transform.forward.x, 0, transform.forward.z) * Input.GetAxis("Vertical") * moveSpeed;
-            transform.Translate(moveVector, Space.World);
-        }
-        else
-        {
-            var moveVector = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, 0, Input.GetAxis("Vertical") * moveSpeed);
-            transform.Translate(moveVector, Space.Self);
-        }
+        var moveVector = transform.right * Input.GetAxis("Horizontal") + new Vector3(transform.forward.x, 0, transform.forward.z) * Input.GetAxis("Vertical");
+        transform.Translate(moveVector * moveSpeed * transform.position.y, Space.World);
 
-        //相机复位远点;
+        transform.Translate(transform.forward * Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * transform.position.y, Space.World);
+
+        transform.position = new Vector3(
+            Mathf.Clamp(transform.position.x, 0, 500),
+            Mathf.Clamp(transform.position.y, minY, maxY),
+            Mathf.Clamp(transform.position.z, 0, 500));
+
         if (Input.GetKeyDown(KeyCode.R))
         {
             transform.position = initialPos;
@@ -46,7 +47,6 @@ public class FreeCamera : MonoBehaviour {
         }
     }
 
-    //规划角度;
     float ClampAngle(float angle, float minAngle, float maxAgnle)
     {
         if (angle <= -360)
