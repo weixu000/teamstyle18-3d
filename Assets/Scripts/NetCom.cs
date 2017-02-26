@@ -149,8 +149,8 @@ public class EndState
 
 public class NetCom : MonoBehaviour
 {
-    public int port;
-    public byte[] addr = { 127, 0, 0, 1 };
+    public static int port;
+    public static byte[] addr = { 127, 0, 0, 1 };
     public static string fileName;
 
     public RoleStateUI player1, player2;
@@ -260,12 +260,18 @@ public class NetCom : MonoBehaviour
             else if(response is Instr)
             {
                 var ins = (Instr)response;
-                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                if(unit != null && target != null && (ins.instruction_type == 1 || ins.instruction_type == 2))
-                {
-                    unit.GetComponent<InvasiveControl>().Fire(ins.target_id_building_id);
-                }
 
+                switch (ins.instruction_type)
+                {
+                    case 1:
+                    case 2:
+                        GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                        if (unit != null && target != null)
+                        {
+                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                        }
+                        break;
+                }
             }
             else if(response is EndState)
             {
