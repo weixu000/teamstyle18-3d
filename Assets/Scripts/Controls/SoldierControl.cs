@@ -36,8 +36,8 @@ public class SoldierControl : InvasiveControl
 
         if(line != null)
         {
-            line.SetActive(true);
             line.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
+            line.SetActive(true);
         }
 
         anim.SetTrigger("Shoot");

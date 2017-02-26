@@ -54,10 +54,10 @@ public struct Position
         y = yy;
     }
 
-    public Vector3 Random()
+    public Vector3 Random(float t = 1)
     {
-        float randx = UnityEngine.Random.Range(0, 5);
-        float randy = UnityEngine.Random.Range(0, 5);
+        float randx = UnityEngine.Random.Range(0, 5 * t);
+        float randy = UnityEngine.Random.Range(0, 5 * t);
         return new Vector3(5 * x + randx, 0, 5 * y + randy);
     }
 

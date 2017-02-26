@@ -8,8 +8,8 @@ public class TankControl : InvasiveControl
     public override void Fire(int target_id)
     {
         turret.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
-        fire.SetActive(true);
         fire.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
+        fire.SetActive(true);
         base.Fire(target_id);
     }
 }

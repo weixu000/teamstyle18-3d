@@ -5,6 +5,7 @@ public class XLine : MonoBehaviour {
     public float maxLength;
     public float remainTime;
     public GameObject line, hitPoint;
+    public float range;
 
     [HideInInspector]
     public GameObject target;
@@ -16,7 +17,12 @@ public class XLine : MonoBehaviour {
         {
             audio.Play();
         }
+
+        var hitpos = target.GetComponent<UnitControl>().position.Random(range) - transform.position;
+        transform.rotation = Quaternion.LookRotation(hitpos);
+
         StartCoroutine("WaitToDisable");
+        Debug.Log("OnEnable called" + gameObject.name);
     }
 
     void Update()
