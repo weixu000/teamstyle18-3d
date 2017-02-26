@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class InvasiveControl : DestroyableControl
 {
@@ -42,9 +41,14 @@ public class InvasiveControl : DestroyableControl
         position = tar;
     }
 
-    public virtual void Fire(int target_id)
+    public virtual void Skill1(int target_id)
     {
-        Debug.Log(name + "attack" + target_id);
+        Debug.Log(name + "attack1" + target_id);
+    }
+
+    public virtual void Skill2(int target_id)
+    {
+        Debug.Log(name + "attack2" + target_id);
     }
 
     protected virtual void Walk()
