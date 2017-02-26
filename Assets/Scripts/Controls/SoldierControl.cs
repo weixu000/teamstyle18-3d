@@ -30,7 +30,7 @@ public class SoldierControl : InvasiveControl
         base.Die();
     }
 
-    public override void Fire(int target_id)
+    public override void Skill1(int target_id)
     {
         rb.MoveRotation(Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position));
 
@@ -45,7 +45,7 @@ public class SoldierControl : InvasiveControl
         {
             weapon.SetTrigger("Shoot");
         }
-        base.Fire(target_id);
+        base.Skill1(target_id);
     }
 
     protected override void Walk()
