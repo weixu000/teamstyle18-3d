@@ -12,6 +12,7 @@ public class DestroyableControl : UnitControl
 
     protected override void Awake()
     {
+        base.Awake();
         hpSlider = transform.Find("Blood/Panel/BloodSlider").GetComponent<UISlider>();
         hpLabel = hpSlider.GetComponentInChildren<UILabel>();
     }

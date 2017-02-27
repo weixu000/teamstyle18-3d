@@ -11,13 +11,12 @@ public class UnitControl : MonoBehaviour
     [HideInInspector]
     public int flag = -1;
 
-    UILabel posLabel, idLabel, flagLabel;
+    public UILabel posLabel, idLabel;
 
     protected virtual void Awake()
     {
         posLabel = transform.Find("Blood/Panel/PositionLabel").GetComponent<UILabel>();
         idLabel = transform.Find("Blood/Panel/IDLabel").GetComponent<UILabel>();
-        flagLabel = transform.Find("Blood/Panel/FlagLabel").GetComponent<UILabel>();
     }
 
     public virtual void SetState(UnitState state)
@@ -29,7 +28,6 @@ public class UnitControl : MonoBehaviour
         flag = state.flag;
 
         posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
-        idLabel.text = "ID" + name;
-        flagLabel.text = "Flag:" + flag.ToString();
+        idLabel.text = "ID:" + name;
     }
 }
