@@ -126,31 +126,46 @@ public class NetCom : MonoBehaviour
                     case 1:
                         {
                             GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            if(unit && target)
+                            {
+                                unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            }
                         }
                         break;
                     case 2:
                         {
                             var unit = GameObject.Find(ins.the_unit_id.ToString());
-                            unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                            if(unit)
+                            {
+                                unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                            }
                         }
                         break;
                     case 3:
                         {
                             var unit = GameObject.Find(ins.the_unit_id.ToString());
-                            Debug.Log(unit.name + "produced");
+                            if (unit)
+                            {
+                                Debug.Log(unit.name + "produced");
+                            }
                         }
                         break;
                     case 4:
                         {
                             var unit = GameObject.Find(ins.the_unit_id.ToString());
-                            Debug.Log(unit.name + "moved");
+                            if (unit)
+                            {
+                                Debug.Log(unit.name + "moved");
+                            }
                         }
                         break;
                     case 5:
                         {
                             GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            if (unit && target)
+                            {
+                                unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            }
                         }
                         break;
                     default:
