@@ -18,8 +18,11 @@ public class XLine : MonoBehaviour {
             audio.Play();
         }
 
-        var hitpos = target.GetComponent<UnitControl>().position.Random(range) - transform.position;
-        transform.rotation = Quaternion.LookRotation(hitpos);
+        if(target.name != "Terrain")
+        {
+            var hitpos = target.GetComponent<UnitControl>().position.Random(range) - transform.position;
+            transform.rotation = Quaternion.LookRotation(hitpos);
+        }
 
         StartCoroutine("WaitToDisable");
         Debug.Log("OnEnable called" + gameObject.name);

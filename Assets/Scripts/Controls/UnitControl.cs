@@ -9,7 +9,16 @@ public class UnitControl : MonoBehaviour
     [HideInInspector]
     public UnitType unit_type;
     [HideInInspector]
-    public int flag;
+    public int flag = -1;
+
+    UILabel posLabel, idLabel, flagLabel;
+
+    protected virtual void Awake()
+    {
+        posLabel = transform.Find("Blood/Panel/PositionLabel").GetComponent<UILabel>();
+        idLabel = transform.Find("Blood/Panel/IDLabel").GetComponent<UILabel>();
+        flagLabel = transform.Find("Blood/Panel/FlagLabel").GetComponent<UILabel>();
+    }
 
     public virtual void SetState(UnitState state)
     {
@@ -18,5 +27,9 @@ public class UnitControl : MonoBehaviour
         unit_name = state.unit_name;
         unit_type = state.unit_type;
         flag = state.flag;
+
+        posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
+        idLabel.text = "ID" + name;
+        flagLabel.text = "Flag:" + flag.ToString();
     }
 }

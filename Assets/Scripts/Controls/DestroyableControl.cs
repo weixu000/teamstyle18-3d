@@ -5,23 +5,20 @@ public class DestroyableControl : UnitControl
     [HideInInspector]
     public float currentHP, maxHP;
 
-    UILabel posLabel, hpLabel;
+    UILabel hpLabel;
     UISlider hpSlider;
 
     public GameObject boom;
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
-        posLabel = GetComponentInChildren<UILabel>();
-        hpSlider = GetComponentInChildren<UISlider>();
+        hpSlider = transform.Find("Blood/Panel/BloodSlider").GetComponent<UISlider>();
         hpLabel = hpSlider.GetComponentInChildren<UILabel>();
     }
 
     public override void SetState(UnitState state)
     {
         base.SetState(state);
-        posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
-
         SetHP(state.health_now, state.max_health_now);
     }
 
