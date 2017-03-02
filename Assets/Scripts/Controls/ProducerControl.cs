@@ -12,7 +12,7 @@ public class ProducerControl : UnitControl {
             }
             else if(display2 != null)
             {
-                display2.SetActive(false);
+                display2.SetActive(true);
             }
         }
         base.SetState(state);
