@@ -11,8 +11,8 @@ public class SelectRPY : MonoBehaviour
         if (File.Exists(filename.text))
         {
             Debug.Log("RPY file:" + filename.text);
-            Debug.Log("Loaded GameScene");
             SceneManager.LoadScene("GameScene");
+            Debug.Log("GameScene loaded");
         }
         else
         {

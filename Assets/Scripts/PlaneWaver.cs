@@ -17,7 +17,7 @@ public class PlaneWaver : MonoBehaviour {
     }
 
     // Update is called once per frame  
-    void Update()
+    void FixedUpdate()
     {
         radian += perRadian; // 弧度每次加0.03  
         float dy = Mathf.Cos(radian + phase) * radius; // dy定义的是针对y轴的变量，也可以使用sin，找到一个适合的值就可以  

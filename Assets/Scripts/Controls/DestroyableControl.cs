@@ -2,13 +2,31 @@
 
 public class DestroyableControl : UnitControl
 {
-    [HideInInspector]
-    public float currentHP, maxHP;
+    public GameObject boom;
 
+    float maxHP = 100, currentHP = 0;
     UILabel hpLabel;
     UISlider hpSlider;
 
-    public GameObject boom;
+    public float MaxHP
+    {
+        get { return maxHP; }
+        set
+        {
+            maxHP = value;
+            UpdateHP();
+        }
+    }
+
+    public float CurrentHP
+    {
+        get { return currentHP; }
+        set
+        {
+            currentHP = value;
+            UpdateHP();
+        }
+    }
 
     protected override void Awake()
     {
@@ -20,7 +38,8 @@ public class DestroyableControl : UnitControl
     public override void SetState(UnitState state)
     {
         base.SetState(state);
-        SetHP(state.health_now, state.max_health_now);
+        CurrentHP = state.health_now;
+        MaxHP = state.max_health_now;
     }
 
     protected virtual void Die()
@@ -33,10 +52,8 @@ public class DestroyableControl : UnitControl
         Debug.Log(name + " is dead");
     }
 
-    public void SetHP(float now,float max)
+    void UpdateHP()
     {
-        currentHP = now;
-        maxHP = max;
         hpSlider.value = currentHP / maxHP;
         hpLabel.text = (100 * currentHP / maxHP).ToString("F") + "%";
         if (currentHP == 0)
