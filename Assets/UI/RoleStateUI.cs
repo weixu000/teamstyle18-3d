@@ -2,13 +2,6 @@
 
 public class RoleStateUI : MonoBehaviour
 {
-    public string playerName = "Player";
-    public float maxHP = 100, currentHP = 0;
-    public float currentPeople = 0;
-    public float currentMoney = 0;
-    public float currentBuildings = 0;
-    public float currentScience = 0;
-
     public UILabel playerNameLabel;
     public UISlider hpSlider;
     public UILabel hpPercentLabel;
@@ -17,25 +10,56 @@ public class RoleStateUI : MonoBehaviour
     public UILabel BuildingsLabel;
     public UILabel ScienceLabel;
 
-    // Use this for initialization
-    void Start()
+    float maxHP = 100, currentHP = 0;
+
+    public float MaxHP
     {
-        playerNameLabel.text = playerName;
+        get { return maxHP; }
+        set
+        {
+            maxHP = value;
+            UpdateHP();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public float CurrentHP
+    {
+        get { return currentHP; }
+        set
+        {
+            currentHP = value;
+            UpdateHP();
+        }
+    }
+
+    public int People
+    {
+        get { return int.Parse(PeopleLabel.text); }
+        set { PeopleLabel.text = value.ToString(); }
+    }
+
+    public int Money
+    {
+        get { return int.Parse(MoneyLabel.text); }
+        set { MoneyLabel.text = value.ToString(); }
+    }
+
+    public int Science
+    {
+        get { return int.Parse(ScienceLabel.text); }
+        set { ScienceLabel.text = value.ToString(); }
+    }
+
+    public int Buildings
+    {
+        get { return int.Parse(BuildingsLabel.text); }
+        set { BuildingsLabel.text = value.ToString(); }
+    }
+
+    void UpdateHP()
     {
         float hppercent = currentHP / maxHP;
         hpSlider.value = hppercent;
         hpPercentLabel.text = (hppercent * 100).ToString("F") + "%";
-
-        PeopleLabel.text = currentPeople.ToString();
-
-        MoneyLabel.text = currentMoney.ToString();
-
-        BuildingsLabel.text = currentBuildings.ToString();
-
-        ScienceLabel.text = currentScience.ToString();
     }
 }

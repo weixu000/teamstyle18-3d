@@ -3,7 +3,7 @@
 public class SoldierControl : InvasiveControl
 {
     Animator anim, weapon;
-    GameObject line;
+    public GameObject fire1, fire2;
 
     protected override void Awake()
     {
@@ -16,7 +16,7 @@ public class SoldierControl : InvasiveControl
 
         if (transform.FindChild("Line") != null)
         {
-            line = transform.FindChild("Line").gameObject;
+            fire1 = transform.FindChild("Line").gameObject;
         }
     }
 
@@ -34,10 +34,10 @@ public class SoldierControl : InvasiveControl
     {
         rb.MoveRotation(Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position));
 
-        if(line != null)
+        if(fire1 != null)
         {
-            line.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
-            line.SetActive(true);
+            fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
+            fire1.SetActive(true);
         }
 
         anim.SetTrigger("Shoot");
@@ -46,6 +46,11 @@ public class SoldierControl : InvasiveControl
             weapon.SetTrigger("Shoot");
         }
         base.Skill1(target_id);
+    }
+
+    public override void Skill2(Position pos)
+    {
+        base.Skill2(pos);
     }
 
     protected override void Walk()

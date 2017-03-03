@@ -11,7 +11,7 @@ public class UnitControl : MonoBehaviour
     [HideInInspector]
     public int flag = -1;
 
-    public UILabel posLabel, idLabel;
+    UILabel posLabel, idLabel;
 
     protected virtual void Awake()
     {
