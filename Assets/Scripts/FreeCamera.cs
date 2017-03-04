@@ -3,7 +3,6 @@
 public class FreeCamera : MonoBehaviour {
     public float moveSpeed, rotationSpeed, zoomSpeed;
     public float maxY, minY;
-    public Transform map;
 
     float deltX;
     float deltY;
