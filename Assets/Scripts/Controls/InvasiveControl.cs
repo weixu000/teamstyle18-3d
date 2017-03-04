@@ -3,8 +3,9 @@
 public class InvasiveControl : DestroyableControl
 {
     public float moveSpeed = 50.0f, rotateSpeed = 150.0f;
+    [HideInInspector]
+    public Vector3 targetPosition;
 
-    protected Vector3 targetPosition;
     protected Rigidbody rb;
 
     protected override void Awake()
