@@ -4,7 +4,6 @@ public class RoleStateUI : MonoBehaviour
 {
     float maxHP = 100, currentHP = 0;
 
-    public UILabel playerNameLabel;
     public UISlider hpSlider;
     public UILabel hpPercentLabel;
     public UILabel PeopleLabel;
