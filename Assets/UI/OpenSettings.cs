@@ -1,22 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class OpenSettings : MonoBehaviour {
-    public GameObject prefab;
-
-    bool opened = false;
-    GameObject settings;
-
-    void Awake()
-    {
-        settings = Instantiate(prefab, Camera.main.transform, false);
-        settings.SetActive(false);
-    }
+    public GameObject settings;
 
     public void open()
     {
-        if (opened)
+        if (settings.activeSelf)
         {
             settings.SetActive(false);
         }
@@ -24,6 +13,5 @@ public class OpenSettings : MonoBehaviour {
         {
             settings.SetActive(true);
         }
-        opened = !opened;
     }
 }
