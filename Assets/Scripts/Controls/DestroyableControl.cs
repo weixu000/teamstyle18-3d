@@ -38,6 +38,16 @@ public class DestroyableControl : UnitControl
     public override void SetState(UnitState state)
     {
         base.SetState(state);
+
+        if (state.flag == 0)
+        {
+            hpSlider.transform.FindChild("HP_Foreground").GetComponent<UISprite>().spriteName = "image 52";
+        }
+        else
+        {
+            hpSlider.transform.FindChild("HP_Foreground").GetComponent<UISprite>().spriteName = "image 33";
+        }
+
         CurrentHP = state.health_now;
         MaxHP = state.max_health_now;
     }

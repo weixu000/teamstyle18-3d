@@ -12,7 +12,7 @@ public class ProducerControl : UnitControl {
                 display1.SetActive(true);
                 //Debug.Log(name + "captured by 1");
             }
-            else if(display2 != null)
+            else if(display2 != null && state.flag == 1)
             {
                 display2.SetActive(true);
                 //Debug.Log(name + "captured by 2");
