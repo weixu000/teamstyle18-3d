@@ -8,8 +8,12 @@ public class TankControl : InvasiveControl
     public override void Skill1(int target_id)
     {
         turret.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
-        fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
-        fire1.SetActive(true);
+        
+        //fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
+        //fire1.SetActive(true);
+
+        fire1.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
+
         base.Skill1(target_id);
     }
 
