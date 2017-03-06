@@ -10,6 +10,8 @@ public class SpeedAdjust : MonoBehaviour
     {
         speedSlider = GetComponent<UISlider>();
         speedLabel = GetComponentInChildren<UILabel>();
+
+        speedSlider.value = Time.timeScale / maxSpeed;
     }
 
     void Update()

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class FireLine : MonoBehaviour {
     public GameObject line;
@@ -33,7 +34,15 @@ public class FireLine : MonoBehaviour {
             flash.Play();
         }
 
-        //line.GetComponent<BulletHit>().target = target;
         Instantiate(line, transform.position, transform.rotation);
+        try
+        {
+            line.GetComponent<BulletHit>().target = target;
+
+        }
+        catch (Exception e)
+        {
+
+        }
     }
 }
