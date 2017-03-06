@@ -8,10 +8,12 @@ public class OpenSettings : MonoBehaviour {
         if (settings.activeSelf)
         {
             settings.SetActive(false);
+            Camera.main.GetComponent<FreeCamera>().enabled = true;
         }
         else
         {
             settings.SetActive(true);
+            Camera.main.GetComponent<FreeCamera>().enabled = false;
         }
     }
 }
