@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class FireLine : MonoBehaviour {
-    public ParticleSystem line;
+    public GameObject line;
     new AudioSource audio;
     ParticleSystem flash;
     public float range;
@@ -28,8 +28,12 @@ public class FireLine : MonoBehaviour {
             audio.Play();
         }
 
-        flash.Play();
-        line.GetComponent<BulletHit>().target = target;
-        line.Play();
+        if (flash)
+        {
+            flash.Play();
+        }
+
+        //line.GetComponent<BulletHit>().target = target;
+        Instantiate(line, transform.position, transform.rotation);
     }
 }
