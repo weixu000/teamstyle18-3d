@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
-public class PlaneControl : InvasiveControl {
+public class PlaneControl : HackedControl
+{
     public GameObject fire1, fire2;
 
     public override void Skill1(int target_id)

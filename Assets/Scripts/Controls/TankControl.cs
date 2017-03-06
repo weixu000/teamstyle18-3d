@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class TankControl : InvasiveControl
+public class TankControl : HackedControl
 {
     public Transform turret;
     public GameObject fire1,fire2;
