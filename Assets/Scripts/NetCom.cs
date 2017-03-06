@@ -13,38 +13,37 @@ public class NetCom : MonoBehaviour
     public static int port;
     public static byte[] addr = { 127, 0, 0, 1 };
     public static string fileName;
-    
-    public bool humanMode = false;
-
-    [HideInInspector]
-    public int AI_id;
-    [HideInInspector]
-    public int round = 0;
-    [HideInInspector]
-    public LinkedList<Instr> InstrsToSend;
 
     public RoleStateUI player1, player2;
     public GameObject[] unitPrefabs;
+    [HideInInspector]
+    public int round = 0;
+    public bool humanMode = false;
 
     bool pause = false;
-
-    Queue responses = new Queue();
-
-
     Thread thread;
+    Queue responsesQueue = new Queue();
+    HashSet<int> lastUnitRead = new HashSet<int>();
+    bool unitUpdateFinished = true, InstrUpdateFinished = true;
+
+    [HideInInspector]
+    public LinkedList<Instr> InstrsToSend;
+
+    [HideInInspector]
+    public int AI_id;
 
     void Awake()
     {
         if (humanMode)
         {
-            thread = new Thread(NetCommunicate);
             InstrsToSend = new LinkedList<Instr>();
-            thread.Start();
+            thread = new Thread(NetCommunicate);
         }
         else
         {
-            ReadFile();
+            thread = new Thread(ReadFile);
         }
+        thread.Start();
     }
 
     void Update()
@@ -55,168 +54,220 @@ public class NetCom : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        thread.Abort();
+    }
+
     void FixedUpdate()
     {
-        if (!pause)
+        if (!pause && unitUpdateFinished && InstrUpdateFinished && responsesQueue.Count > 0)
         {
-            if (responses.Count > 0)
+            object response;
+            lock (responsesQueue)
             {
-                object response;
-                lock (responses)
-                {
-                    response = responses.Dequeue();
-                }
-                if (response is PlayerState)
-                {
-                    PlayerState s = (PlayerState)response;
-                    player1.People = s.remain_people0;
-                    player1.Money = s.money0;
-                    player1.Science = s.tech0;
-                    player2.People = s.remain_people1;
-                    player2.Money = s.money1;
-                    player2.Science = s.tech1;
-
-                    round++;
-                }
-                else if (response is UnitState)
-                {
-                    UnitState s = (UnitState)response;
-                    GameObject unit = GameObject.Find(s.unit_id.ToString());
-
-                    // 计算双方建筑个数
-                    if (s.unit_type == (UnitType.BASE | UnitType.BUILDING))
-                    {
-                        if (unit != null)
-                        {
-                            if (unit.GetComponent<UnitControl>().flag == 0)
-                            {
-                                player1.Buildings--;
-                            }
-                            else if (unit.GetComponent<UnitControl>().flag == 1)
-                            {
-                                player2.Buildings--;
-                            }
-                        }
-
-                        if (s.flag == 0)
-                        {
-                            player1.Buildings++;
-                        }
-                        else if (s.flag == 1)
-                        {
-                            player2.Buildings++;
-                        }
-                    }
-
-                    // 更新双方血条
-                    if (s.unit_name == UnitName.__BASE)
-                    {
-                        if (s.flag == 0)
-                        {
-                            player1.CurrentHP = s.health_now;
-                            player1.MaxHP = s.max_health_now;
-                        }
-                        else
-                        {
-                            player2.CurrentHP = s.health_now;
-                            player2.MaxHP = s.max_health_now;
-                        }
-                    }
-
-                    if (unit == null)
-                    {
-                        var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
-                        if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
-                        {
-                            unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
-                        }
-                        else
-                        {
-                            unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
-                        }
-
-                    }
-                    unit.GetComponent<UnitControl>().SetState(s);
-                }
-                else if (response is Instr)
-                {
-                    var ins = (Instr)response;
-
-                    switch (ins.instruction_type)
-                    {
-                        case 1:
-                            {
-                                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                                if (unit && target)
-                                {
-                                    unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
-                                }
-                            }
-                            break;
-                        case 2:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
-                                {
-                                    unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
-                                }
-                            }
-                            break;
-                        case 3:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
-                                {
-                                    //Debug.Log(unit.name + "produced");
-                                }
-                            }
-                            break;
-                        case 4:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
-                                {
-                                    //Debug.Log(unit.name + "moved");
-                                }
-                            }
-                            break;
-                        case 5:
-                            {
-                                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                                if (unit && target)
-                                {
-                                    unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
-                                }
-                            }
-                            break;
-                        default:
-                            Debug.LogError("Wrong instr");
-                            break;
-                    }
-                }
-                else if (response is EndState)
-                {
-                    var end = (EndState)response;
-                    var control = GameObject.Find(end.flag.ToString()).GetComponent<DestroyableControl>();
-                    control.CurrentHP = 0;
-                    if (end.flag == 0)
-                    {
-                        player1.CurrentHP = 0;
-                    }
-                    else
-                    {
-                        player2.CurrentHP = 0;
-                    }
-                }
+                response = responsesQueue.Dequeue();
+            }
+            if (response is PlayerState)
+            {
+                PlayerStateUpdate((PlayerState)response);
+            }
+            else if (response is UnitState[])
+            {
+                var s = StartCoroutine("UnitStateUpdate", response);
+            }
+            else if (response is Instr[])
+            {
+                StartCoroutine("InstrsUpdate", response);
+            }
+            else if (response is EndState)
+            {
+                EndStateUpdate((EndState)response);
             }
         }
     }
 
-    void OnDestroy()
+    void PlayerStateUpdate(PlayerState s)
     {
-        if (humanMode)
+        player1.People = s.remain_people0;
+        player1.Money = s.money0;
+        player1.Science = s.tech0;
+        player2.People = s.remain_people1;
+        player2.Money = s.money1;
+        player2.Science = s.tech1;
+
+        round++;
+    }
+
+    IEnumerator UnitStateUpdate(UnitState[] response)
+    {
+        unitUpdateFinished = false;
+        foreach (var id in lastUnitRead)
         {
-            thread.Abort();
+            var unit = GameObject.Find(id.ToString());
+            if (unit && unit.GetComponent<InvasiveControl>())
+            {
+                do
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+                while (unit.GetComponent<InvasiveControl>().walking);
+            }
+        }
+
+        HashSet<int> temp = new HashSet<int>();
+        foreach (var s in response)
+        {
+            temp.Add(s.unit_id);
+
+            var unit = GameObject.Find(s.unit_id.ToString());
+
+            // 计算双方建筑个数
+            if (s.unit_type == (UnitType.BASE | UnitType.BUILDING))
+            {
+                if (unit != null)
+                {
+                    if (unit.GetComponent<UnitControl>().flag == 0)
+                    {
+                        player1.Buildings--;
+                    }
+                    else if (unit.GetComponent<UnitControl>().flag == 1)
+                    {
+                        player2.Buildings--;
+                    }
+                }
+
+                if (s.flag == 0)
+                {
+                    player1.Buildings++;
+                }
+                else if (s.flag == 1)
+                {
+                    player2.Buildings++;
+                }
+            }
+            // 更新双方血条
+            if (s.unit_name == UnitName.__BASE)
+            {
+                if (s.flag == 0)
+                {
+                    player1.CurrentHP = s.health_now;
+                    player1.MaxHP = s.max_health_now;
+                }
+                else
+                {
+                    player2.CurrentHP = s.health_now;
+                    player2.MaxHP = s.max_health_now;
+                }
+            }
+
+            if (unit == null)
+            {
+                var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
+                if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
+                {
+                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
+                }
+                else
+                {
+                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
+                }
+
+            }
+            unit.GetComponent<UnitControl>().SetState(s);
+        }
+
+        foreach (var id in lastUnitRead)
+        {
+            if (!temp.Contains(id))
+            {
+                var unit = GameObject.Find(id.ToString());
+                if (unit)
+                {
+                    unit.GetComponent<DestroyableControl>().CurrentHP = 0;
+                }
+            }
+        }
+        lastUnitRead = temp;
+
+        unitUpdateFinished = true;
+        yield break;
+    }
+
+    IEnumerator InstrsUpdate(Instr[] response)
+    {
+        InstrUpdateFinished = false;
+
+        foreach (var ins in response)
+        {
+            switch (ins.instruction_type)
+            {
+                case 1:
+                    {
+                        GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                        if (unit && target)
+                        {
+                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                        }
+                    }
+                    break;
+                case 2:
+                    {
+                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        if (unit)
+                        {
+                            unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                        }
+                    }
+                    break;
+                case 3:
+                    {
+                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        if (unit)
+                        {
+                            //Debug.Log(unit.name + "produced");
+                        }
+                    }
+                    break;
+                case 4:
+                    {
+                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        if (unit)
+                        {
+                            //Debug.Log(unit.name + "moved");
+                        }
+                    }
+                    break;
+                case 5:
+                    {
+                        GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                        if (unit && target)
+                        {
+                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                        }
+                    }
+                    break;
+                default:
+                    Debug.LogError("Wrong instr");
+                    break;
+            }
+        }
+
+        InstrUpdateFinished = true;
+        yield break;
+    }
+
+    void EndStateUpdate(EndState end)
+    {
+        if (end.flag == 0)
+        {
+            player2.CurrentHP = 0;
+            GameObject.Find(1.ToString()).GetComponent<DestroyableControl>().CurrentHP = 0;
+        }
+        else
+        {
+            player1.CurrentHP = 0;
+            GameObject.Find(0.ToString()).GetComponent<DestroyableControl>().CurrentHP = 0;
         }
     }
 
@@ -246,7 +297,6 @@ public class NetCom : MonoBehaviour
                         }
                     }
                 }
-
             }
         }
         catch (Exception e)
@@ -256,60 +306,93 @@ public class NetCom : MonoBehaviour
         Debug.Log("Net communication stopped.");
     }
 
+    void ReadFile()
+    {
+        try
+        {
+            using (var stream = File.Open(fileName, FileMode.Open))
+            {
+                Debug.Log("File opened");
+                while (stream.Length > 0)
+                {
+                    Read(stream);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+        Debug.Log("File reading complete");
+    }
+
     void Read(Stream stream)
     {
         int responseType = BitConverter.ToInt32(ReadBytes(stream, sizeof(int)), 0);
         switch (responseType)
         {
             case 12345:
-                ReadBundle<UnitState>(stream);
-                //Debug.Log(string.Format("Receive {0} unit states", ReceiveBundle<UnitState>(stream)));
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadBundle<UnitState>(stream));
+                }
+                //Debug.Log("Receive unit states");
                 break;
             case 123456:
-                ReadResponse<Buff>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadResponse<Buff>(stream));
+                }
                 //Debug.Log("Receive buff");
                 break;
             case 1234567:
-                ReadResponse<PlayerState>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadResponse<PlayerState>(stream));
+                }
                 //Debug.Log("Receive player state");
                 break;
             case 12345678:
-                ReadBundle<Instr>(stream);
-                //Debug.Log(string.Format("Receive {0} instrs", ReceiveBundle<Instr>(stream)));
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadBundle<Instr>(stream));
+                }
+                //Debug.Log("Receive instrs");
                 break;
             case 300:
-                lock (responses)
+                lock (responsesQueue)
                 {
-                    responses.Enqueue(new EndState(0));
+                    responsesQueue.Enqueue(new EndState(0));
                 }
                 Debug.Log("The winner is 0");
                 return;
             case 301:
-                lock (responses)
+                lock (responsesQueue)
                 {
-                    responses.Enqueue(new EndState(1));
+                    responsesQueue.Enqueue(new EndState(1));
                 }
                 Debug.Log("The winner is 1");
                 return;
             default:
                 Debug.LogError("Wrong Package " + responseType);
-                break;
+                return;
         }
     }
 
-    int ReadBundle<ResponseType>(Stream stream)
+    ResponseType[] ReadBundle<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         int n = BitConverter.ToInt32(ReadBytes(stream, sizeof(int)), 0);
+        var responses = new ResponseType[n];
         for (int i = 0; i < n; i++)
         {
-            ReadResponse<ResponseType>(stream);
+            responses[i] = ReadResponse<ResponseType>(stream);
         }
 
-        return n;
+        return responses;
     }
 
-    void ReadResponse<ResponseType>(Stream stream)
+    ResponseType ReadResponse<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         var responseSize = Marshal.SizeOf(new ResponseType());
@@ -320,10 +403,8 @@ public class NetCom : MonoBehaviour
         ResponseType response = new ResponseType();
         Marshal.PtrToStructure(structPtr, response);
         Marshal.FreeHGlobal(structPtr);
-        lock (responses)
-        {
-            responses.Enqueue(response);
-        }
+
+        return response;
     }
 
     byte[] ReadBytes(Stream stream, int size)
@@ -359,25 +440,5 @@ public class NetCom : MonoBehaviour
         Marshal.FreeHGlobal(structPtr);
 
         stream.Write(bytes, 0, size);
-    }
-
-    void ReadFile()
-    {
-        try
-        {
-            using (var stream = File.Open(fileName, FileMode.Open))
-            {
-                Debug.Log("File opened");
-                while (stream.Length > 0)
-                {
-                    Read(stream);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError(e);
-        }
-        Debug.Log("File reading complete");
     }
 }
