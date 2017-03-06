@@ -111,7 +111,7 @@ public class NetCom : MonoBehaviour
                 {
                     yield return new WaitForFixedUpdate();
                 }
-                while (unit.GetComponent<InvasiveControl>().walking);
+                while (unit && unit.GetComponent<InvasiveControl>().walking);
             }
         }
 
