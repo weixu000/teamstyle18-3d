@@ -2,13 +2,9 @@
 
 public class UnitControl : MonoBehaviour
 {
-    [HideInInspector]
     public Position position;
-    [HideInInspector]
     public UnitName unit_name;
-    [HideInInspector]
     public UnitType unit_type;
-    [HideInInspector]
     public int flag = -1;
 
     UILabel posLabel, idLabel;
