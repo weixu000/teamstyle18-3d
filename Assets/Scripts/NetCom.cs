@@ -8,12 +8,12 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 
-public class NetCom : MonoBehaviour
+public class NetCom2 : MonoBehaviour
 {
     public static int port;
     public static byte[] addr = { 127, 0, 0, 1 };
     public static string fileName;
-    
+
     public bool humanMode = false;
 
     [HideInInspector]
@@ -28,8 +28,9 @@ public class NetCom : MonoBehaviour
 
     bool pause = false;
 
-    Queue responses = new Queue();
+    Queue responsesQueue = new Queue();
 
+    HashSet<int> lastUnitRead = new HashSet<int>();
 
     Thread thread;
 
@@ -37,14 +38,14 @@ public class NetCom : MonoBehaviour
     {
         if (humanMode)
         {
-            thread = new Thread(NetCommunicate);
             InstrsToSend = new LinkedList<Instr>();
-            thread.Start();
+            thread = new Thread(NetCommunicate);
         }
         else
         {
-            ReadFile();
+            thread = new Thread(ReadFile);
         }
+        thread.Start();
     }
 
     void Update()
@@ -59,16 +60,16 @@ public class NetCom : MonoBehaviour
     {
         if (!pause)
         {
-            if (responses.Count > 0)
+            if (responsesQueue.Count > 0)
             {
                 object response;
-                lock (responses)
+                lock (responsesQueue)
                 {
-                    response = responses.Dequeue();
+                    response = responsesQueue.Dequeue();
                 }
                 if (response is PlayerState)
                 {
-                    PlayerState s = (PlayerState)response;
+                    var s = (PlayerState)response;
                     player1.People = s.remain_people0;
                     player1.Money = s.money0;
                     player1.Science = s.tech0;
@@ -78,134 +79,150 @@ public class NetCom : MonoBehaviour
 
                     round++;
                 }
-                else if (response is UnitState)
+                else if (response is UnitState[])
                 {
-                    UnitState s = (UnitState)response;
-                    GameObject unit = GameObject.Find(s.unit_id.ToString());
-
-                    // 计算双方建筑个数
-                    if (s.unit_type == (UnitType.BASE | UnitType.BUILDING))
+                    HashSet<int> temp = new HashSet<int>();
+                    foreach(var s in (UnitState[])response)
                     {
-                        if (unit != null)
+                        temp.Add(s.unit_id);
+
+                        var unit = GameObject.Find(s.unit_id.ToString());
+
+                        // 计算双方建筑个数
+                        if (s.unit_type == (UnitType.BASE | UnitType.BUILDING))
                         {
-                            if (unit.GetComponent<UnitControl>().flag == 0)
+                            if (unit != null)
                             {
-                                player1.Buildings--;
+                                if (unit.GetComponent<UnitControl>().flag == 0)
+                                {
+                                    player1.Buildings--;
+                                }
+                                else if (unit.GetComponent<UnitControl>().flag == 1)
+                                {
+                                    player2.Buildings--;
+                                }
                             }
-                            else if (unit.GetComponent<UnitControl>().flag == 1)
+
+                            if (s.flag == 0)
                             {
-                                player2.Buildings--;
+                                player1.Buildings++;
+                            }
+                            else if (s.flag == 1)
+                            {
+                                player2.Buildings++;
                             }
                         }
 
-                        if (s.flag == 0)
+                        // 更新双方血条
+                        if (s.unit_name == UnitName.__BASE)
                         {
-                            player1.Buildings++;
+                            if (s.flag == 0)
+                            {
+                                player1.CurrentHP = s.health_now;
+                                player1.MaxHP = s.max_health_now;
+                            }
+                            else
+                            {
+                                player2.CurrentHP = s.health_now;
+                                player2.MaxHP = s.max_health_now;
+                            }
                         }
-                        else if (s.flag == 1)
+
+                        if (unit == null)
                         {
-                            player2.Buildings++;
+                            var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
+                            if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
+                            {
+                                unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
+                            }
+                            else
+                            {
+                                unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
+                            }
+
                         }
+                        unit.GetComponent<UnitControl>().SetState(s);
                     }
 
-                    // 更新双方血条
-                    if (s.unit_name == UnitName.__BASE)
+                    foreach (var id in lastUnitRead)
                     {
-                        if (s.flag == 0)
+                        if (!temp.Contains(id))
                         {
-                            player1.CurrentHP = s.health_now;
-                            player1.MaxHP = s.max_health_now;
-                        }
-                        else
-                        {
-                            player2.CurrentHP = s.health_now;
-                            player2.MaxHP = s.max_health_now;
+                            var unit = GameObject.Find(id.ToString());
+                            unit.GetComponent<DestroyableControl>().CurrentHP = 0;
                         }
                     }
-
-                    if (unit == null)
-                    {
-                        var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
-                        if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
-                        {
-                            unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
-                        }
-                        else
-                        {
-                            unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
-                        }
-
-                    }
-                    unit.GetComponent<UnitControl>().SetState(s);
+                    lastUnitRead = temp;
                 }
-                else if (response is Instr)
+                else if (response is Instr[])
                 {
-                    var ins = (Instr)response;
-
-                    switch (ins.instruction_type)
+                    foreach (var ins in (Instr[])response)
                     {
-                        case 1:
-                            {
-                                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                                if (unit && target)
+                        switch (ins.instruction_type)
+                        {
+                            case 1:
                                 {
-                                    unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                                    GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                                    if (unit && target)
+                                    {
+                                        unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                                    }
                                 }
-                            }
-                            break;
-                        case 2:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
+                                break;
+                            case 2:
                                 {
-                                    unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                                    var unit = GameObject.Find(ins.the_unit_id.ToString());
+                                    if (unit)
+                                    {
+                                        unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                                    }
                                 }
-                            }
-                            break;
-                        case 3:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
+                                break;
+                            case 3:
                                 {
-                                    //Debug.Log(unit.name + "produced");
+                                    var unit = GameObject.Find(ins.the_unit_id.ToString());
+                                    if (unit)
+                                    {
+                                        //Debug.Log(unit.name + "produced");
+                                    }
                                 }
-                            }
-                            break;
-                        case 4:
-                            {
-                                var unit = GameObject.Find(ins.the_unit_id.ToString());
-                                if (unit)
+                                break;
+                            case 4:
                                 {
-                                    //Debug.Log(unit.name + "moved");
+                                    var unit = GameObject.Find(ins.the_unit_id.ToString());
+                                    if (unit)
+                                    {
+                                        //Debug.Log(unit.name + "moved");
+                                    }
                                 }
-                            }
-                            break;
-                        case 5:
-                            {
-                                GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
-                                if (unit && target)
+                                break;
+                            case 5:
                                 {
-                                    unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                                    GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                                    if (unit && target)
+                                    {
+                                        unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                                    }
                                 }
-                            }
-                            break;
-                        default:
-                            Debug.LogError("Wrong instr");
-                            break;
+                                break;
+                            default:
+                                Debug.LogError("Wrong instr");
+                                break;
+                        }
                     }
                 }
                 else if (response is EndState)
                 {
                     var end = (EndState)response;
-                    var control = GameObject.Find(end.flag.ToString()).GetComponent<DestroyableControl>();
-                    control.CurrentHP = 0;
                     if (end.flag == 0)
                     {
-                        player1.CurrentHP = 0;
+                        player2.CurrentHP = 0;
+                        GameObject.Find(1.ToString()).GetComponent<DestroyableControl>().CurrentHP = 0;
                     }
                     else
                     {
-                        player2.CurrentHP = 0;
+                        player1.CurrentHP = 0;
+                        GameObject.Find(0.ToString()).GetComponent<DestroyableControl>().CurrentHP = 0;
                     }
                 }
             }
@@ -214,10 +231,7 @@ public class NetCom : MonoBehaviour
 
     void OnDestroy()
     {
-        if (humanMode)
-        {
-            thread.Abort();
-        }
+        thread.Abort();
     }
 
     void NetCommunicate()
@@ -246,7 +260,6 @@ public class NetCom : MonoBehaviour
                         }
                     }
                 }
-
             }
         }
         catch (Exception e)
@@ -262,32 +275,44 @@ public class NetCom : MonoBehaviour
         switch (responseType)
         {
             case 12345:
-                ReadBundle<UnitState>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadBundle<UnitState>(stream));
+                }
                 //Debug.Log(string.Format("Receive {0} unit states", ReceiveBundle<UnitState>(stream)));
                 break;
             case 123456:
-                ReadResponse<Buff>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadResponse<Buff>(stream));
+                }
                 //Debug.Log("Receive buff");
                 break;
             case 1234567:
-                ReadResponse<PlayerState>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadResponse<PlayerState>(stream));
+                }
                 //Debug.Log("Receive player state");
                 break;
             case 12345678:
-                ReadBundle<Instr>(stream);
+                lock (responsesQueue)
+                {
+                    responsesQueue.Enqueue(ReadBundle<Instr>(stream));
+                }
                 //Debug.Log(string.Format("Receive {0} instrs", ReceiveBundle<Instr>(stream)));
                 break;
             case 300:
-                lock (responses)
+                lock (responsesQueue)
                 {
-                    responses.Enqueue(new EndState(0));
+                    responsesQueue.Enqueue(new EndState(0));
                 }
                 Debug.Log("The winner is 0");
                 return;
             case 301:
-                lock (responses)
+                lock (responsesQueue)
                 {
-                    responses.Enqueue(new EndState(1));
+                    responsesQueue.Enqueue(new EndState(1));
                 }
                 Debug.Log("The winner is 1");
                 return;
@@ -297,19 +322,20 @@ public class NetCom : MonoBehaviour
         }
     }
 
-    int ReadBundle<ResponseType>(Stream stream)
+    ResponseType[] ReadBundle<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         int n = BitConverter.ToInt32(ReadBytes(stream, sizeof(int)), 0);
+        var responses = new ResponseType[n];
         for (int i = 0; i < n; i++)
         {
-            ReadResponse<ResponseType>(stream);
+            responses[i] = ReadResponse<ResponseType>(stream);
         }
 
-        return n;
+        return responses;
     }
 
-    void ReadResponse<ResponseType>(Stream stream)
+    ResponseType ReadResponse<ResponseType>(Stream stream)
         where ResponseType : new()
     {
         var responseSize = Marshal.SizeOf(new ResponseType());
@@ -320,10 +346,8 @@ public class NetCom : MonoBehaviour
         ResponseType response = new ResponseType();
         Marshal.PtrToStructure(structPtr, response);
         Marshal.FreeHGlobal(structPtr);
-        lock (responses)
-        {
-            responses.Enqueue(response);
-        }
+
+        return response;
     }
 
     byte[] ReadBytes(Stream stream, int size)
