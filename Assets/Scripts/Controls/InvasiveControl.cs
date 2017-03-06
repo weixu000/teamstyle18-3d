@@ -3,6 +3,8 @@
 public class InvasiveControl : DestroyableControl
 {
     public float moveSpeed = 50.0f, rotateSpeed = 150.0f;
+    [HideInInspector]
+    public bool walking = false;
 
     protected Vector3 targetPosition;
     protected Rigidbody rb;
@@ -52,6 +54,8 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void Walk()
     {
+        walking = true;
+
         rb.MovePosition(Vector3.MoveTowards(rb.position, targetPosition, moveSpeed * Time.deltaTime));
         if (targetPosition - rb.position != Vector3.zero)
         {
@@ -61,6 +65,6 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void Stop()
     {
-
+        walking = false;
     }
 }
