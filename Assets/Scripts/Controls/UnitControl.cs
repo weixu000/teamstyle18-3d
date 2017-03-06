@@ -37,7 +37,7 @@ public class UnitControl : MonoBehaviour
                 Destroy(mapMark);
             }
 
-            if (unit_type == UnitType.BUILDING)
+            if (unit_type == UnitType.BUILDING || unit_type==UnitType.BASE)
             {
                 mapMark = Instantiate(mapStore.buildings[state.flag + 1], transform, false);
             }
