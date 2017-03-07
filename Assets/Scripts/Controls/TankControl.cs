@@ -21,7 +21,7 @@ public class TankControl : HackedControl
     {
         if (fire2 != null)
         {
-            turret.rotation = Quaternion.LookRotation(pos.Random() - transform.position);
+            turret.rotation = Quaternion.LookRotation(pos.Random(0) - transform.position);
             fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
             fire2.SetActive(true);
         }

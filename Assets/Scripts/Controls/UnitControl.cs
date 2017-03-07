@@ -30,7 +30,7 @@ public class UnitControl : MonoBehaviour
         posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
         idLabel.text = "ID:" + name;
 
-        if (flag != state.flag)
+        if (!mapMark || flag != state.flag)
         {
             if (mapMark)
             {
@@ -45,11 +45,6 @@ public class UnitControl : MonoBehaviour
             {
                 mapMark = Instantiate(mapStore.units[state.flag], transform, false);
             }
-        }
-
-        if (!mapMark)
-        {
-            mapMark = Instantiate(mapStore.buildings[0], transform, false);
         }
         flag = state.flag;
     }

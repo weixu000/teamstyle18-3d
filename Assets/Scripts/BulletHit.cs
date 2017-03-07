@@ -9,6 +9,7 @@ public class BulletHit : MonoBehaviour
     public float velocity=50.0f;
     public GameObject target;
     public GameObject hit;
+    public int maxHitPoints = 1;
 
     void Awake()
     {
@@ -19,14 +20,19 @@ public class BulletHit : MonoBehaviour
 
     void OnParticleCollision(GameObject other)
     {
-        if (other == target)
+        if (other == target||other.name == "Terrain")
         {
             List<ParticleCollisionEvent> collisionEvents=new List<ParticleCollisionEvent>();
             bullet.GetCollisionEvents(other, collisionEvents);
 
-            foreach (var collision in collisionEvents)
+            //foreach (var collision in collisionEvents)
+            //{
+            //    Instantiate(hit, collision.intersection, Quaternion.identity);
+            //}
+
+            for (int i = 0; i < collisionEvents.Count && i < maxHitPoints; i++)
             {
-                Instantiate(hit, collisionEvents[0].intersection, Quaternion.identity);
+                Instantiate(hit, collisionEvents[i].intersection, Quaternion.identity);
             }
             Destroy(gameObject);
         }
