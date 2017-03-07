@@ -9,7 +9,7 @@ public class BulletHit : MonoBehaviour
     public float velocity=50.0f;
     public GameObject target;
     public GameObject hit;
-    public int maxHitPoints = 5;
+    public int maxHitPoints = 1;
 
     void Awake()
     {

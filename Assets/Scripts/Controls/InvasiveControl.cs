@@ -22,8 +22,8 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void FixedUpdate()
     {
-        var cur = transform.position;
-        cur.y = 0;
+        //var cur = transform.position;
+        //cur.y = 0;
         if ((transform.position - targetPosition).sqrMagnitude >= 0.1)
         {
             Walk();
@@ -36,7 +36,7 @@ public class InvasiveControl : DestroyableControl
     public void Move(Position tar)
     {
         if (position == tar) return;
-        targetPosition = tar.Random();
+        targetPosition = tar.Random(transform.position.y);
         position = tar;
     }
 

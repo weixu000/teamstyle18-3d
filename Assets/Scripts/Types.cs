@@ -43,31 +43,31 @@ public struct Position
     public int x;
     public int y;
 
-    public Position(int xx, int yy)
-    {
-        x = xx;
-        y = yy;
-    }
+    //public Position(int xx, int yy)
+    //{
+    //    x = xx;
+    //    y = yy;
+    //}
 
-    public Vector3 Random(float t = 1)
+    public Vector3 Random(float height, float t = 1)
     {
         float randx = UnityEngine.Random.Range(0, 5 * t);
         float randy = UnityEngine.Random.Range(0, 5 * t);
-        return new Vector3(5 * x + randx, 0, 5 * y + randy);
+        return new Vector3(5 * x + randx, height, 5 * y + randy);
     }
 
-    public Vector3 Center()
+    public Vector3 Center(float height)
     {
-        return new Vector3(5 * x + 2.5f, 0, 5 * y + 2.5f);
+        return new Vector3(5 * x + 2.5f, height, 5 * y + 2.5f);
     }
 
-    public bool Inside(Vector3 vec)
-    {
-        if ((int)vec.x / 10 == x && (int)vec.y / 10 == y)
-            return true;
-        else
-            return false;
-    }
+    //public bool Inside(Vector3 vec)
+    //{
+    //    if ((int)vec.x / 10 == x && (int)vec.y / 10 == y)
+    //        return true;
+    //    else
+    //        return false;
+    //}
 
     public static bool operator ==(Position a, Position b)
     {

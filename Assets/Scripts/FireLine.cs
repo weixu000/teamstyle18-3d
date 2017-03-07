@@ -16,7 +16,7 @@ public class FireLine : MonoBehaviour {
     {
         if (target.name != "Terrain")
         {
-            var hitpos = target.GetComponent<UnitControl>().position.Random(range) - transform.position;
+            var hitpos = target.GetComponent<UnitControl>().position.Random(target.transform.position.y, range) - transform.position;
             transform.rotation = Quaternion.LookRotation(hitpos);
         }
         else

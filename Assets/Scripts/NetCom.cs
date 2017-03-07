@@ -170,11 +170,11 @@ public class NetCom : MonoBehaviour
                 var direction = new Vector3(UnityEngine.Random.value, 0, UnityEngine.Random.value);
                 if (s.unit_type == UnitType.BASE | s.unit_type == UnitType.BUILDING)
                 {
-                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(), Quaternion.LookRotation(direction));
+                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Center(unitPrefabs[(int)s.unit_name].transform.position.y), Quaternion.LookRotation(direction));
                 }
                 else
                 {
-                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(), Quaternion.LookRotation(direction));
+                    unit = Instantiate(unitPrefabs[(int)s.unit_name], s.position.Random(unitPrefabs[(int)s.unit_name].transform.position.y), Quaternion.LookRotation(direction));
                 }
 
             }

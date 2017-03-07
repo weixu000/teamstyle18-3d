@@ -2,27 +2,27 @@
 
 public class SoldierControl : InvasiveControl
 {
-    Animator anim, weapon;
+    public Animator body, weapon;
     public GameObject fire1, fire2;
 
     protected override void Awake()
     {
         base.Awake();
-        anim = GetComponent<Animator>();
-        if (GetComponentsInChildren<Animator>().Length > 1)
-        {
-            weapon = GetComponentsInChildren<Animator>()[1];
-        }
+        //anim = GetComponent<Animator>();
+        //if (GetComponentsInChildren<Animator>().Length > 1)
+        //{
+        //    weapon = GetComponentsInChildren<Animator>()[1];
+        //}
 
-        if (transform.FindChild("Line") != null)
-        {
-            fire1 = transform.FindChild("Line").gameObject;
-        }
+        //if (transform.FindChild("Line") != null)
+        //{
+        //    fire1 = transform.FindChild("Line").gameObject;
+        //}
     }
 
     protected override void Die()
     {
-        anim.SetTrigger("Die");
+        body.SetTrigger("Die");
         if (weapon != null)
         {
             weapon.SetTrigger("Die");
@@ -33,7 +33,6 @@ public class SoldierControl : InvasiveControl
     public override void Skill1(int target_id)
     {
         transform.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
-        //rb.MoveRotation(Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position));
 
         if(fire1 != null)
         {
@@ -41,7 +40,7 @@ public class SoldierControl : InvasiveControl
             fire1.SetActive(true);
         }
 
-        anim.SetTrigger("Shoot");
+        body.SetTrigger("Shoot");
         if (weapon != null)
         {
             weapon.SetTrigger("Shoot");
@@ -56,7 +55,7 @@ public class SoldierControl : InvasiveControl
 
     protected override void Walk()
     {
-        anim.SetBool("IsWalking", true);
+        body.SetBool("IsWalking", true);
         if (weapon != null)
         {
             weapon.SetBool("IsWalking", true);
@@ -72,6 +71,6 @@ public class SoldierControl : InvasiveControl
         {
             weapon.SetBool("IsWalking", false);
         }
-        anim.SetBool("IsWalking", false);
+        body.SetBool("IsWalking", false);
     }
 }
