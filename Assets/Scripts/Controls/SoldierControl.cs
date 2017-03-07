@@ -32,7 +32,8 @@ public class SoldierControl : InvasiveControl
 
     public override void Skill1(int target_id)
     {
-        rb.MoveRotation(Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position));
+        transform.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
+        //rb.MoveRotation(Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position));
 
         if(fire1 != null)
         {

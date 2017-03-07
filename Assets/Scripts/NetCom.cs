@@ -101,6 +101,10 @@ public class NetCom : MonoBehaviour
 
     IEnumerator UnitStateUpdate(UnitState[] response)
     {
+        while (!InstrUpdateFinished)
+        {
+            yield return new WaitForEndOfFrame();
+        }
         unitUpdateFinished = false;
         foreach (var id in lastUnitRead)
         {

@@ -18,7 +18,7 @@ public class FreeCamera : MonoBehaviour {
         deltY = transform.root.eulerAngles.x;
     }
 
-    void LateUpdate()
+    void Update()
     {
         if (Input.GetMouseButton(0))
         {

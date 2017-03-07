@@ -7,13 +7,11 @@ public class InvasiveControl : DestroyableControl
     public bool walking = false;
 
     protected Vector3 targetPosition;
-    protected Rigidbody rb;
 
     protected override void Awake()
     {
         base.Awake();
         targetPosition = transform.position;
-        rb = GetComponent<Rigidbody>();
     }
 
     public override void SetState(UnitState state)
@@ -24,9 +22,9 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void FixedUpdate()
     {
-        Vector3 cur = rb.position;
+        var cur = transform.position;
         cur.y = 0;
-        if ((rb.position - targetPosition).sqrMagnitude >= 0.1)
+        if ((transform.position - targetPosition).sqrMagnitude >= 0.1)
         {
             Walk();
         }else
@@ -56,10 +54,10 @@ public class InvasiveControl : DestroyableControl
     {
         walking = true;
 
-        rb.MovePosition(Vector3.MoveTowards(rb.position, targetPosition, moveSpeed * Time.deltaTime));
-        if (targetPosition - rb.position != Vector3.zero)
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        if (targetPosition - transform.position != Vector3.zero)
         {
-            rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, Quaternion.LookRotation(targetPosition - rb.position), rotateSpeed * Time.deltaTime));
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetPosition - transform.position), rotateSpeed * Time.deltaTime);
         }
     }
 
