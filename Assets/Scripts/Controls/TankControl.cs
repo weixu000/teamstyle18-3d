@@ -8,11 +8,21 @@ public class TankControl : HackedControl
     public override void Skill1(int target_id)
     {
         turret.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
-        
-        //fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
-        //fire1.SetActive(true);
 
-        fire1.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
+        var xline = fire1.GetComponent<XLine>();
+        if (xline)
+        {
+            xline.target = GameObject.Find(target_id.ToString());
+            fire1.SetActive(true);
+        }
+        else
+        {
+            var bullet = fire1.GetComponent<FireLine>();
+            if (bullet)
+            {
+                bullet.Fire(GameObject.Find(target_id.ToString()));
+            }
+        }
 
         base.Skill1(target_id);
     }

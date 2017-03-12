@@ -6,12 +6,18 @@ public class SelectionBox : MonoBehaviour
     public RectTransform selectBox;
     //[HideInInspector]
     public List<GameObject> units, selectedUnits;
+
+    const int shootableLayer = 8;
     Vector3 initialPos;
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            {
+                SelectOne();
+            }
             selectBox.gameObject.SetActive(true);
             initialPos = Input.mousePosition;
         }
@@ -48,6 +54,18 @@ public class SelectionBox : MonoBehaviour
         }
     }
 
+    void SelectOne()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, 1 << shootableLayer))
+        {
+            if (units.Contains(hit.collider.gameObject))
+            {
+                selectedUnits.Add(hit.collider.gameObject);
+            }
+        }
+    }
+
     public void Diselect()
     {
         foreach (var unit in selectedUnits)
@@ -56,5 +74,10 @@ public class SelectionBox : MonoBehaviour
         }
 
         selectedUnits.Clear();
+    }
+
+    public bool ContinueSelecting()
+    {
+        return selectBox.gameObject.activeSelf || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
     }
 }

@@ -35,14 +35,10 @@ public class FireLine : MonoBehaviour {
         }
 
         Instantiate(line, transform.position, transform.rotation);
-        try
+        var bullet = line.GetComponent<BulletHit>();
+        if (bullet)
         {
-            line.GetComponent<BulletHit>().target = target;
-
-        }
-        catch (Exception e)
-        {
-
+            bullet.GetComponent<BulletHit>().target = target;
         }
     }
 }

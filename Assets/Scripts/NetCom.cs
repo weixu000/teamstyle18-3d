@@ -27,7 +27,7 @@ public class NetCom : MonoBehaviour
     bool unitUpdateFinished = true, InstrUpdateFinished = true;
 
     [HideInInspector]
-    public LinkedList<Instr> InstrsToSend;
+    public Queue<Instr> InstrsToSend;
 
     [HideInInspector]
     public int AI_id;
@@ -36,7 +36,7 @@ public class NetCom : MonoBehaviour
     {
         if (humanMode)
         {
-            InstrsToSend = new LinkedList<Instr>();
+            InstrsToSend = new Queue<Instr>();
             thread = new Thread(NetCommunicate);
         }
         else
@@ -204,47 +204,47 @@ public class NetCom : MonoBehaviour
 
         foreach (var ins in response)
         {
-            switch (ins.instruction_type)
+            switch (ins.type)
             {
-                case 1:
+                case InstrType.SKILL1:
                     {
-                        GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                        GameObject unit = GameObject.Find(ins.id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
                         if (unit && target)
                         {
                             unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
                         }
                     }
                     break;
-                case 2:
+                case InstrType.SKILL2:
                     {
-                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
                             unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
                         }
                     }
                     break;
-                case 3:
+                case InstrType.PRODUCE:
                     {
-                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
                             //Debug.Log(unit.name + "produced");
                         }
                     }
                     break;
-                case 4:
+                case InstrType.MOVE:
                     {
-                        var unit = GameObject.Find(ins.the_unit_id.ToString());
+                        var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
                             //Debug.Log(unit.name + "moved");
                         }
                     }
                     break;
-                case 5:
+                case InstrType.CAPTURE:
                     {
-                        GameObject unit = GameObject.Find(ins.the_unit_id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
+                        GameObject unit = GameObject.Find(ins.id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
                         if (unit && target)
                         {
                             unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
@@ -431,8 +431,7 @@ public class NetCom : MonoBehaviour
         Instr instr;
         lock (InstrsToSend)
         {
-            instr = InstrsToSend.First.Value;
-            InstrsToSend.RemoveFirst();
+            instr = InstrsToSend.Dequeue();
         }
         var size = Marshal.SizeOf(instr);
 
