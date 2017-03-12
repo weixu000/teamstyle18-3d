@@ -20,7 +20,7 @@ public class BulletHit : MonoBehaviour
 
     void OnParticleCollision(GameObject other)
     {
-        if (other == target||other.name == "Terrain")
+        if (other == target)
         {
             List<ParticleCollisionEvent> collisionEvents=new List<ParticleCollisionEvent>();
             bullet.GetCollisionEvents(other, collisionEvents);
