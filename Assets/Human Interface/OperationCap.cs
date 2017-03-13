@@ -41,12 +41,12 @@ public class OperationCap : MonoBehaviour
         }
         else if (box.selectedUnits.Count > 0 && !box.ContinueSelecting() && Input.GetMouseButtonDown(1))
         {
-            var target = HitTerrain();
-            if (target != null)
+            Position target;
+            if (HitTerrain(out target))
             {
                 foreach (var unit in box.selectedUnits)
                 {
-                    netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL2, int.Parse(unit.name), 0, target));
+                    netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL2, int.Parse(unit.name), 0, target, Position.zero));
                     Debug.Log(unit.name + string.Format("order to skill2 at ({0},{1})", target.x, target.y));
                 }
             }
@@ -63,18 +63,18 @@ public class OperationCap : MonoBehaviour
         }
     }
 
-    Position HitTerrain()
+    bool HitTerrain(out Position pos)
     {
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, 1 << 10))
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, 1 << shootableLayer) && hit.collider.gameObject.name == "Terrain")
         {
             RenderGuideLine(hit.point);
-            return Position.Inside(hit.point);
+            pos = Position.Inside(hit.point);
+            return true;
         }
-        else
-        {
-            return null;
-        }
+
+        pos = Position.zero;
+        return false;
     }
 
     GameObject HitUnit(int layerMask)

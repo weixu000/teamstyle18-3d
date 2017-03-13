@@ -29,10 +29,9 @@ public class PlaneControl : HackedControl
     {
         if (fire2 != null)
         {
-            //fire2.transform.rotation = Quaternion.LookRotation(pos.Random() - fire1.transform.position);
-            //fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
-            //fire2.SetActive(true);
-            //fire2.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
+            fire2.transform.rotation = Quaternion.LookRotation(pos.Random(0) - fire1.transform.position);
+            fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
+            fire2.SetActive(true);
         }
 
         base.Skill2(pos);

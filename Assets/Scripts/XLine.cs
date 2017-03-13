@@ -20,7 +20,7 @@ public class XLine : MonoBehaviour {
 
         if(target.name != "Terrain")
         {
-            var hitpos = target.GetComponent<UnitControl>().position.Random(0, range) - transform.position;
+            var hitpos = target.GetComponent<UnitControl>().position.Random(target.transform.position.y, range) - transform.position;
             transform.rotation = Quaternion.LookRotation(hitpos);
         }
 

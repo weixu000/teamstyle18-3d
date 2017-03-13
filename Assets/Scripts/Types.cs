@@ -38,10 +38,19 @@ public enum UnitName
 
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public class Position
+public struct Position
 {
     public int x;
     public int y;
+
+    public static Position zero
+    {
+        get
+        {
+            return new Position(0, 0);
+        }
+    }
+
 
     public Position(int _x = 0, int _y = 0)
     {
@@ -66,14 +75,14 @@ public class Position
         return new Position((int)vec.x / 5, (int)vec.z / 5);
     }
 
-    //public static bool operator ==(Position a, Position b)
-    //{
-    //    return a.x == b.x && a.y == b.y;
-    //}
-    //public static bool operator !=(Position a, Position b)
-    //{
-    //    return !(a == b);
-    //}
+    public static bool operator ==(Position a, Position b)
+    {
+        return a.x == b.x && a.y == b.y;
+    }
+    public static bool operator !=(Position a, Position b)
+    {
+        return !(a == b);
+    }
 };
 
 [Serializable]
@@ -133,28 +142,18 @@ public class Instr
 
     }
 
-    public Instr(InstrType _type, int _id, int _target = 0, Position _pos1 = null, Position _pos2 = null)
+    public Instr(InstrType _type, int _id, int _target, Position _pos1, Position _pos2)
+        :this(_type,_id,_target)
+    {
+        pos1 = _pos1;
+        pos2 = _pos2;
+    }
+
+    public Instr(InstrType _type, int _id, int _target = 0)
     {
         type = _type;
         id = _id;
         target_id_building_id = _target;
-        if (_pos1 == null)
-        {
-            pos1 = new Position();
-        }
-        else
-        {
-            pos1 = _pos1;
-        }
-
-        if (_pos2 == null)
-        {
-            pos2 = new Position();
-        }
-        else
-        {
-            pos2 = _pos2;
-        }
     }
 };
 

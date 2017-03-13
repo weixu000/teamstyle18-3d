@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 public class BulletHit : MonoBehaviour
 {
+    public float velocity=50.0f;
+    public GameObject hit;
+    public int maxHitPoints = 1;
+
     ParticleSystem bullet;
     Rigidbody rb;
 
-    public float velocity=50.0f;
+    [HideInInspector]
     public GameObject target;
-    public GameObject hit;
-    public int maxHitPoints = 1;
 
     void Awake()
     {
@@ -24,11 +26,6 @@ public class BulletHit : MonoBehaviour
         {
             List<ParticleCollisionEvent> collisionEvents=new List<ParticleCollisionEvent>();
             bullet.GetCollisionEvents(other, collisionEvents);
-
-            //foreach (var collision in collisionEvents)
-            //{
-            //    Instantiate(hit, collision.intersection, Quaternion.identity);
-            //}
 
             for (int i = 0; i < collisionEvents.Count && i < maxHitPoints; i++)
             {
