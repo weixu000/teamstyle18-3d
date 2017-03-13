@@ -43,16 +43,25 @@ public struct Position
     public int x;
     public int y;
 
-    //public Position(int xx, int yy)
-    //{
-    //    x = xx;
-    //    y = yy;
-    //}
+    public static Position zero
+    {
+        get
+        {
+            return new Position(0, 0);
+        }
+    }
+
+
+    public Position(int _x = 0, int _y = 0)
+    {
+        x = _x;
+        y = _y;
+    }
 
     public Vector3 Random(float height, float t = 1)
     {
-        float randx = UnityEngine.Random.Range(0, 5 * t);
-        float randy = UnityEngine.Random.Range(0, 5 * t);
+        var randx = UnityEngine.Random.Range(0, 5 * t);
+        var randy = UnityEngine.Random.Range(0, 5 * t);
         return new Vector3(5 * x + randx, height, 5 * y + randy);
     }
 
@@ -61,13 +70,10 @@ public struct Position
         return new Vector3(5 * x + 2.5f, height, 5 * y + 2.5f);
     }
 
-    //public bool Inside(Vector3 vec)
-    //{
-    //    if ((int)vec.x / 10 == x && (int)vec.y / 10 == y)
-    //        return true;
-    //    else
-    //        return false;
-    //}
+    public static Position Inside(Vector3 vec)
+    {
+        return new Position((int)vec.x / 5, (int)vec.z / 5);
+    }
 
     public static bool operator ==(Position a, Position b)
     {
@@ -107,19 +113,48 @@ public class UnitState
 [StructLayout(LayoutKind.Sequential)]
 public class PlayerState
 {
-    public int tech0, money0, remain_people0;
-    public int tech1, money1, remain_people1;
+    public int money0, remain_people0, tech0;
+    public int money1, remain_people1, tech1;
 };
+
+public enum InstrType
+{
+    NULL,
+    SKILL1,
+    SKILL2,
+    PRODUCE,
+    MOVE,
+    CAPTURE
+}
 
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
 public class Instr
 {
-    public int instruction_type;
-    public int the_unit_id;
+    public InstrType type;
+    public int id;
     public int target_id_building_id;
     public Position pos1;
     public Position pos2;
+
+    public Instr()
+    {
+
+    }
+
+    public Instr(InstrType _type, int _id, int _target, Position _pos1, Position _pos2)
+        :this(_type,_id,_target)
+    {
+        pos1 = _pos1;
+        pos2 = _pos2;
+    }
+
+    public Instr(InstrType _type, int _id, int _target = 0)
+    {
+        type = _type;
+        id = _id;
+        target_id_building_id = _target;
+    }
 };
 
 [Serializable]

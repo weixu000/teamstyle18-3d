@@ -6,11 +6,22 @@ public class PlaneControl : HackedControl
 
     public override void Skill1(int target_id)
     {
-        //fire1.transform.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - fire1.transform.position);
-        //fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
-        //fire1.SetActive(true);
+        var xline = fire1.GetComponent<XLine>();
+        if (xline)
+        {
+            fire1.transform.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - fire1.transform.position);
+            xline.target = GameObject.Find(target_id.ToString());
+            fire1.SetActive(true);
+        }
+        else
+        {
+            var bullet = fire1.GetComponent<FireLine>();
+            if (bullet)
+            {
+                bullet.Fire(GameObject.Find(target_id.ToString()));
+            }
+        }
 
-        fire1.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
         base.Skill1(target_id);
     }
 
@@ -18,10 +29,9 @@ public class PlaneControl : HackedControl
     {
         if (fire2 != null)
         {
-            //fire2.transform.rotation = Quaternion.LookRotation(pos.Random() - fire1.transform.position);
-            //fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
-            //fire2.SetActive(true);
-            //fire2.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
+            fire2.transform.rotation = Quaternion.LookRotation(pos.Random(0) - fire1.transform.position);
+            fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
+            fire2.SetActive(true);
         }
 
         base.Skill2(pos);
