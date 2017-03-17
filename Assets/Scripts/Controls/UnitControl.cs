@@ -27,7 +27,7 @@ public class UnitControl : MonoBehaviour
         unit_name = state.unit_name;
         unit_type = state.unit_type;
 
-        posLabel.text = "(" + state.position.x + "," + state.position.y + ")";
+        posLabel.text = state.position.ToString();
         idLabel.text = "ID:" + name;
 
         if (!mapMark || flag != state.flag)

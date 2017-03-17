@@ -69,7 +69,7 @@ public class OperationCap : MonoBehaviour
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, 1 << shootableLayer) && hit.collider.gameObject.name == "Terrain")
         {
             RenderGuideLine(hit.point);
-            pos = Position.Inside(hit.point);
+            pos = Position.InsideWhere(hit.point);
             return true;
         }
 

@@ -42,12 +42,12 @@ public class InvasiveControl : DestroyableControl
 
     public virtual void Skill1(int target_id)
     {
-        Debug.Log(name + "attack" + target_id);
+        Debug.Log(name + " skill1 " + target_id);
     }
 
-    public virtual void Skill2(Position pos)
+    public virtual void Skill2(Position pos1, Position pos2)
     {
-        Debug.Log(name + "bombed");
+        Debug.Log(name + " skill2" + pos1.ToString() + " " + pos2.ToString());
     }
 
     protected virtual void Walk()

@@ -10,9 +10,15 @@ public class XLine : MonoBehaviour {
     [HideInInspector]
     public GameObject target;
 
+    new AudioSource audio;
+
+    void Awake()
+    {
+        audio = GetComponent<AudioSource>();
+    }
+
     void OnEnable()
     {
-        AudioSource audio = GetComponent<AudioSource>();
         if (audio != null)
         {
             audio.Play();

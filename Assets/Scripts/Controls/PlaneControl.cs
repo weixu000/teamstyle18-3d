@@ -25,15 +25,14 @@ public class PlaneControl : HackedControl
         base.Skill1(target_id);
     }
 
-    public override void Skill2(Position pos)
+    public override void Skill2(Position pos1, Position pos2)
     {
         if (fire2 != null)
         {
-            fire2.transform.rotation = Quaternion.LookRotation(pos.Random(0) - fire1.transform.position);
-            fire2.GetComponent<XLine>().target = GameObject.Find("Terrain");
-            fire2.SetActive(true);
+            fire2.GetComponent<FireLine>().Fire(pos1);
+            fire2.GetComponent<FireLine>().Fire(pos2);
         }
 
-        base.Skill2(pos);
+        base.Skill2(pos1, pos2);
     }
 }

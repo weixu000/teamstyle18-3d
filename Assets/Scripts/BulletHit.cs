@@ -6,6 +6,7 @@ public class BulletHit : MonoBehaviour
     public float velocity=50.0f;
     public GameObject hit;
     public int maxHitPoints = 1;
+    public float minHeight = 0.005f;
 
     ParticleSystem bullet;
     Rigidbody rb;
@@ -17,14 +18,29 @@ public class BulletHit : MonoBehaviour
     {
         bullet = GetComponent<ParticleSystem>();
         rb = GetComponent<Rigidbody>();
-        rb.velocity = velocity * transform.forward;
+        if (rb)
+        {
+            rb.velocity = velocity * transform.forward;
+        }
+    }
+
+    void Update()
+    {
+        if (transform.position.y < minHeight)
+        {
+            for (int i = 0; i < maxHitPoints; i++)
+            {
+                Instantiate(hit, transform.position, Quaternion.identity);
+            }
+            Destroy(gameObject);
+        }
     }
 
     void OnParticleCollision(GameObject other)
     {
-        if (other == target)
+        if (target && other == target)
         {
-            List<ParticleCollisionEvent> collisionEvents=new List<ParticleCollisionEvent>();
+            var collisionEvents=new List<ParticleCollisionEvent>();
             bullet.GetCollisionEvents(other, collisionEvents);
 
             for (int i = 0; i < collisionEvents.Count && i < maxHitPoints; i++)
