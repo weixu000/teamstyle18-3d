@@ -51,7 +51,6 @@ public struct Position
         }
     }
 
-
     public Position(int _x = 0, int _y = 0)
     {
         x = _x;
@@ -70,7 +69,12 @@ public struct Position
         return new Vector3(5 * x + 2.5f, height, 5 * y + 2.5f);
     }
 
-    public static Position Inside(Vector3 vec)
+    public bool Inside(Vector3 vec)
+    {
+        return (int)vec.x / 5 == x && (int)vec.z / 5 == y;
+    }
+
+    public static Position InsideWhere(Vector3 vec)
     {
         return new Position((int)vec.x / 5, (int)vec.z / 5);
     }
@@ -79,9 +83,15 @@ public struct Position
     {
         return a.x == b.x && a.y == b.y;
     }
+
     public static bool operator !=(Position a, Position b)
     {
         return !(a == b);
+    }
+
+    public override string ToString()
+    {
+        return "(" + x + "," + y + ")";
     }
 };
 

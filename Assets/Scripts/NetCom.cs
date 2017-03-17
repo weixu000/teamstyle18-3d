@@ -220,7 +220,7 @@ public class NetCom : MonoBehaviour
                         var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
-                            unit.GetComponent<InvasiveControl>().Skill2(ins.pos1);
+                            unit.GetComponent<InvasiveControl>().Skill2(ins.pos1, ins.pos2);
                         }
                     }
                     break;
@@ -340,28 +340,28 @@ public class NetCom : MonoBehaviour
                 {
                     responsesQueue.Enqueue(ReadBundle<UnitState>(stream));
                 }
-                //Debug.Log("Receive unit states");
+                Debug.Log("Receive unit states");
                 break;
             case 123456:
                 lock (responsesQueue)
                 {
                     responsesQueue.Enqueue(ReadResponse<Buff>(stream));
                 }
-                //Debug.Log("Receive buff");
+                Debug.Log("Receive buff");
                 break;
             case 1234567:
                 lock (responsesQueue)
                 {
                     responsesQueue.Enqueue(ReadResponse<PlayerState>(stream));
                 }
-                //Debug.Log("Receive player state");
+                Debug.Log("Receive player state");
                 break;
             case 12345678:
                 lock (responsesQueue)
                 {
                     responsesQueue.Enqueue(ReadBundle<Instr>(stream));
                 }
-                //Debug.Log("Receive instrs");
+                Debug.Log("Receive instrs");
                 break;
             case 300:
                 lock (responsesQueue)

@@ -48,9 +48,10 @@ public class SoldierControl : InvasiveControl
         base.Skill1(target_id);
     }
 
-    public override void Skill2(Position pos)
+    public override void Skill2(Position pos1, Position pos2)
     {
-        base.Skill2(pos);
+
+        base.Skill2(pos1, pos2);
     }
 
     protected override void Walk()

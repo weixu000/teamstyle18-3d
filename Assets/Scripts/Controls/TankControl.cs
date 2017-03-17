@@ -13,14 +13,21 @@ public class TankControl : HackedControl
         base.Skill1(target_id);
     }
 
-    public override void Skill2(Position pos)
+    public override void Skill2(Position pos1, Position pos2)
     {
-        turret.rotation = Quaternion.LookRotation(pos.Random(turret.position.y) - turret.position);
+        turret.rotation = Quaternion.LookRotation(pos1.Random(turret.position.y) - turret.position);
         if (fire2)
         {
-            fire2.GetComponent<FireLine>().Fire(pos);
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    var pos = new Position(pos1.x + i, pos1.y + j);
+                    fire2.GetComponent<FireLine>().Fire(pos);
+                }
+            }
         }
 
-        base.Skill2(pos);
+        base.Skill2(pos1, pos2);
     }
 }
