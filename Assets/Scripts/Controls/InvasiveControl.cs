@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class InvasiveControl : DestroyableControl
 {
     public float moveSpeed = 50.0f, rotateSpeed = 150.0f;
     [HideInInspector]
-    public bool walking = false;
+    public bool moveDone = true, fireDone = true;
 
     protected Vector3 targetPosition;
 
@@ -22,9 +23,7 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void FixedUpdate()
     {
-        //var cur = transform.position;
-        //cur.y = 0;
-        if ((transform.position - targetPosition).sqrMagnitude >= 0.1)
+        if (CurrentHP != 0 && (transform.position - targetPosition).sqrMagnitude >= 0.1)
         {
             Walk();
         }else
@@ -52,7 +51,7 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void Walk()
     {
-        walking = true;
+        moveDone = false;
 
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
         if (targetPosition - transform.position != Vector3.zero)
@@ -63,6 +62,23 @@ public class InvasiveControl : DestroyableControl
 
     protected virtual void Stop()
     {
-        walking = false;
+        moveDone = true;
+    }
+
+    protected IEnumerator WaitForFireDone(GameObject fire)
+    {
+        var line = fire.GetComponent<AbstractLine>();
+        while (true)
+        {
+            if (line.done)
+            {
+                fireDone = true;
+                yield break;
+            }
+            else
+            {
+                yield return new WaitForFixedUpdate();
+            }
+        }
     }
 }

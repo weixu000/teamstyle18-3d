@@ -1,64 +1,69 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class XLine : MonoBehaviour {
+public class XLine : AbstractLine {
     public float maxLength;
     public float remainTime;
     public GameObject line, hitPoint;
-    public float range;
 
-    [HideInInspector]
-    public GameObject target;
-
-    new AudioSource audio;
-
-    void Awake()
+    public override void Fire(GameObject target)
     {
-        audio = GetComponent<AudioSource>();
-    }
+        base.Fire(target);
 
-    void OnEnable()
-    {
-        if (audio != null)
-        {
-            audio.Play();
-        }
-
-        if(target.name != "Terrain")
-        {
-            var hitpos = target.GetComponent<UnitControl>().position.Random(target.transform.position.y, range) - transform.position;
-            transform.rotation = Quaternion.LookRotation(hitpos);
-        }
-
+        if (line) line.SetActive(true);
+        StartCoroutine("ActualFire", target);
         StartCoroutine("WaitToDisable");
-        Debug.Log("OnEnable called" + gameObject.name);
     }
 
-    void Update()
+    public override void Fire(Position pos)
+    {
+        base.Fire(pos);
+
+        if (line) line.SetActive(true);
+        StartCoroutine("ActualFire", GameObject.Find("Terrain"));
+        StartCoroutine("WaitToDisable");
+    }
+
+    IEnumerator ActualFire(GameObject target)
     {
         var Sc = new Vector3(0.5f, 0, 0.5f);
 
-        foreach (var hit in Physics.RaycastAll(transform.position, transform.forward))
+        do
         {
-            if (hit.transform.gameObject == target)
+            var found = false;
+            foreach (var hit in Physics.RaycastAll(transform.position, transform.forward))
             {
-                Sc.y = hit.distance;
-                if (line != null)
+                if (hit.transform.gameObject == target)
                 {
-                    line.transform.localScale = Sc;
+                    Sc.y = hit.distance;
+                    if (line != null)
+                    {
+                        line.SetActive(true);
+                        line.transform.localScale = Sc;
+                    }
+
+                    hitPoint.transform.position = hit.point;
+                    hitPoint.SetActive(true);
+
+                    found = true;
                 }
-
-                hitPoint.transform.position = hit.point;
-                hitPoint.SetActive(true);
-
-                return;
             }
-        }
+
+            if (found)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            else
+            {
+                break;
+            }
+        } while (true);
 
         Sc.y = maxLength;
         hitPoint.SetActive(false);
         if (line != null)
         {
+            line.SetActive(true);
             line.transform.localScale = Sc;
         }
     }
@@ -66,6 +71,9 @@ public class XLine : MonoBehaviour {
     IEnumerator WaitToDisable()
     {
         yield return new WaitForSeconds(remainTime);
-        gameObject.SetActive(false);
+        if (line) line.SetActive(false);
+        hitPoint.SetActive(false);
+        StopCoroutine("ActualFire");
+        done = true;
     }
 }

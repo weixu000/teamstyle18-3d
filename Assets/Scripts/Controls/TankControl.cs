@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class TankControl : HackedControl
 {
@@ -7,15 +8,17 @@ public class TankControl : HackedControl
 
     public override void Skill1(int target_id)
     {
-        turret.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - turret.position);
-        fire1.GetComponent<FireLine>().Fire(GameObject.Find(target_id.ToString()));
-
         base.Skill1(target_id);
+        RotateTurret(GameObject.Find(target_id.ToString()).transform.position);
+        fire1.GetComponent<AbstractLine>().Fire(GameObject.Find(target_id.ToString()));
+        fireDone = false;
+        StartCoroutine(WaitForFireDone(fire1));
     }
 
     public override void Skill2(Position pos1, Position pos2)
     {
-        turret.rotation = Quaternion.LookRotation(pos1.Random(turret.position.y) - turret.position);
+        base.Skill2(pos1, pos2);
+        RotateTurret(pos1.Random(turret.position.y));
         if (fire2)
         {
             for (int i = -1; i < 2; i++)
@@ -23,11 +26,17 @@ public class TankControl : HackedControl
                 for (int j = -1; j < 2; j++)
                 {
                     var pos = new Position(pos1.x + i, pos1.y + j);
-                    fire2.GetComponent<FireLine>().Fire(pos);
+                    fire2.GetComponent<AbstractLine>().Fire(pos);
                 }
             }
+            fireDone = false;
+            StartCoroutine(WaitForFireDone(fire2));
         }
-
-        base.Skill2(pos1, pos2);
+    }
+    void RotateTurret(Vector3 target)
+    {
+        var direction = target - turret.position;
+        direction.y = 0;
+        turret.rotation = Quaternion.LookRotation(direction);
     }
 }

@@ -65,7 +65,7 @@ public class DestroyableControl : UnitControl
     void UpdateHP()
     {
         hpSlider.value = currentHP / maxHP;
-        hpLabel.text = currentHP.ToString() + "/" + maxHP.ToString();
+        hpLabel.text = currentHP.ToString("F1") + "/" + maxHP.ToString();
         if (currentHP == 0)
             Die();
     }
