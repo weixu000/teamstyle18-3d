@@ -3,6 +3,7 @@
 public class DestroyableControl : UnitControl
 {
     public GameObject boom;
+    public float destroyTime = 1f;
 
     float maxHP = 100, currentHP = 0;
     UILabel hpLabel;
@@ -54,7 +55,8 @@ public class DestroyableControl : UnitControl
 
     protected virtual void Die()
     {
-        Destroy(gameObject, 1f);
+        Destroy(gameObject, destroyTime);
+        
         if(boom != null)
         {
             boom.SetActive(true);

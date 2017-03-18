@@ -15,9 +15,9 @@ public class XLine : AbstractLine {
         StartCoroutine("WaitToDisable");
     }
 
-    public override void Fire(Position pos)
+    public override void Fire(Position pos, float range = 0)
     {
-        base.Fire(pos);
+        base.Fire(pos, range);
 
         if (line) line.SetActive(true);
         StartCoroutine("ActualFire", GameObject.Find("Terrain"));

@@ -21,14 +21,7 @@ public class TankControl : HackedControl
         RotateTurret(pos1.Random(turret.position.y));
         if (fire2)
         {
-            for (int i = -1; i < 2; i++)
-            {
-                for (int j = -1; j < 2; j++)
-                {
-                    var pos = new Position(pos1.x + i, pos1.y + j);
-                    fire2.GetComponent<AbstractLine>().Fire(pos);
-                }
-            }
+            fire2.GetComponent<AbstractLine>().Fire(pos1);
             fireDone = false;
             StartCoroutine(WaitForFireDone(fire2));
         }
