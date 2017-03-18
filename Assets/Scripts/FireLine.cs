@@ -1,36 +1,42 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
-public class FireLine : MonoBehaviour {
+public class FireLine : AbstractLine {
     public GameObject line;
-    new AudioSource audio;
-    ParticleSystem flash;
-    public float range;
 
-    void Awake () {
-        audio = GetComponent<AudioSource>();
-        flash = GetComponent<ParticleSystem>();
-	}
+    GameObject bullet;
 
-    public void Fire(GameObject target)
+    public override void Fire(GameObject target)
     {
-        var hitpos = target.GetComponent<UnitControl>().position.Random(target.transform.position.y, range) - transform.position;
-        transform.rotation = Quaternion.LookRotation(hitpos);
+        base.Fire(target);
 
-        if (audio) audio.Play();
-        if (flash) flash.Play();
-
-        var bullet = Instantiate(line, transform.position, transform.rotation).GetComponent<BulletHit>();
-        bullet.target = target;
+        bullet = Instantiate(line, transform.position, transform.rotation);
+        bullet.GetComponent<BulletHit>().target = target;
+        StartCoroutine("WaitForBullet");
     }
 
-    public void Fire(Position pos)
+    public override void Fire(Position pos)
     {
-        transform.rotation = Quaternion.LookRotation(pos.Random(0, range) - transform.position);
+        base.Fire(pos);
 
-        if (audio) audio.Play();
-        if (flash) flash.Play();
+        bullet = Instantiate(line, transform.position, transform.rotation);
+        StartCoroutine("WaitForBullet");
+    }
 
-        var bullet = Instantiate(line, transform.position, transform.rotation).GetComponent<BulletHit>();
+    IEnumerator WaitForBullet()
+    {
+        while (true)
+        {
+            if (bullet)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            else
+            {
+                done = true;
+                yield break;
+            }
+        }
     }
 }

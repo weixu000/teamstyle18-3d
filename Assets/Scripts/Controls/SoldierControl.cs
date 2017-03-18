@@ -1,23 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class SoldierControl : InvasiveControl
 {
     public Animator body, weapon;
-    public GameObject fire1, fire2;
+    public GameObject fire1;
 
     protected override void Awake()
     {
         base.Awake();
-        //anim = GetComponent<Animator>();
-        //if (GetComponentsInChildren<Animator>().Length > 1)
-        //{
-        //    weapon = GetComponentsInChildren<Animator>()[1];
-        //}
-
-        //if (transform.FindChild("Line") != null)
-        //{
-        //    fire1 = transform.FindChild("Line").gameObject;
-        //}
     }
 
     protected override void Die()
@@ -32,12 +23,15 @@ public class SoldierControl : InvasiveControl
 
     public override void Skill1(int target_id)
     {
+        base.Skill1(target_id);
+
         transform.rotation = Quaternion.LookRotation(GameObject.Find(target_id.ToString()).transform.position - transform.position);
 
         if(fire1 != null)
         {
-            fire1.GetComponent<XLine>().target = GameObject.Find(target_id.ToString());
-            fire1.SetActive(true);
+            fire1.GetComponent<AbstractLine>().Fire(GameObject.Find(target_id.ToString()));
+            fireDone = false;
+            StartCoroutine(WaitForFireDone(fire1));
         }
 
         body.SetTrigger("Shoot");
@@ -45,13 +39,6 @@ public class SoldierControl : InvasiveControl
         {
             weapon.SetTrigger("Shoot");
         }
-        base.Skill1(target_id);
-    }
-
-    public override void Skill2(Position pos1, Position pos2)
-    {
-
-        base.Skill2(pos1, pos2);
     }
 
     protected override void Walk()

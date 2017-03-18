@@ -16,6 +16,7 @@ public class NetCom : MonoBehaviour
 
     public RoleStateUI player1, player2;
     public GameObject[] unitPrefabs;
+
     [HideInInspector]
     public int round = 0;
     public bool humanMode = false;
@@ -106,18 +107,6 @@ public class NetCom : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         unitUpdateFinished = false;
-        foreach (var id in lastUnitRead)
-        {
-            var unit = GameObject.Find(id.ToString());
-            if (unit && unit.GetComponent<InvasiveControl>())
-            {
-                do
-                {
-                    yield return new WaitForFixedUpdate();
-                }
-                while (unit && unit.GetComponent<InvasiveControl>().walking);
-            }
-        }
 
         HashSet<int> temp = new HashSet<int>();
         foreach (var s in response)
@@ -194,6 +183,19 @@ public class NetCom : MonoBehaviour
         }
         lastUnitRead = temp;
 
+        foreach (var id in lastUnitRead)
+        {
+            var unit = GameObject.Find(id.ToString());
+            if (unit && unit.GetComponent<InvasiveControl>())
+            {
+                do
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+                while (unit && !unit.GetComponent<InvasiveControl>().moveDone);
+            }
+        }
+
         unitUpdateFinished = true;
         yield break;
     }
@@ -202,6 +204,7 @@ public class NetCom : MonoBehaviour
     {
         InstrUpdateFinished = false;
 
+        HashSet<int> temp = new HashSet<int>();
         foreach (var ins in response)
         {
             switch (ins.type)
@@ -211,6 +214,7 @@ public class NetCom : MonoBehaviour
                         GameObject unit = GameObject.Find(ins.id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
                         if (unit && target)
                         {
+                            temp.Add(ins.id);
                             unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
                         }
                     }
@@ -220,6 +224,7 @@ public class NetCom : MonoBehaviour
                         var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
+                            temp.Add(ins.id);
                             unit.GetComponent<InvasiveControl>().Skill2(ins.pos1, ins.pos2);
                         }
                     }
@@ -254,6 +259,19 @@ public class NetCom : MonoBehaviour
                 default:
                     Debug.LogError("Wrong instr");
                     break;
+            }
+        }
+
+        foreach (var id in lastUnitRead)
+        {
+            var unit = GameObject.Find(id.ToString());
+            if (unit && unit.GetComponent<InvasiveControl>())
+            {
+                do
+                {
+                    yield return new WaitForFixedUpdate();
+                }
+                while (unit && !unit.GetComponent<InvasiveControl>().fireDone);
             }
         }
 

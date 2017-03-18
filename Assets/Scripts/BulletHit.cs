@@ -6,7 +6,8 @@ public class BulletHit : MonoBehaviour
     public float velocity=50.0f;
     public GameObject hit;
     public int maxHitPoints = 1;
-    public float minHeight = 0.005f;
+
+    const float minX = -20, maxX = 570, minY = 0, maxY = 150, minZ = -20, maxZ = 500;
 
     ParticleSystem bullet;
     Rigidbody rb;
@@ -26,7 +27,9 @@ public class BulletHit : MonoBehaviour
 
     void Update()
     {
-        if (transform.position.y < minHeight)
+        if (transform.position.y < minY || transform.position.y >maxY
+            || transform.position.x < minX || transform.position.x > maxX
+            || transform.position.z < minZ || transform.position.z > maxZ)
         {
             for (int i = 0; i < maxHitPoints; i++)
             {
