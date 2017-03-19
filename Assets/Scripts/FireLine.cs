@@ -16,9 +16,9 @@ public class FireLine : AbstractLine {
         StartCoroutine("WaitForBullet");
     }
 
-    public override void Fire(Position pos)
+    public override void Fire(Position pos, float range = 0)
     {
-        base.Fire(pos);
+        base.Fire(pos, range);
 
         bullet = Instantiate(line, transform.position, transform.rotation);
         StartCoroutine("WaitForBullet");
