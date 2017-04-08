@@ -1,20 +1,21 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class OperationCap : MonoBehaviour
 {
-    SelectionBox box;
-    LineRenderer guideLine;
-    NetCom netcom;
+    public SelectionBox box;
+    public GameObject guideLine;
+    public NetCom netcom;
+
+    class Instruction
+    {
+        public Instr ins;
+        public GameObject line;
+    }
+
+    Dictionary<GameObject, Instruction> lines = new Dictionary<GameObject, Instruction>();
 
     const int shootableLayer = 8, producerLayer = 9;
-
-    void Awake()
-    {
-        box = GetComponent<SelectionBox>();
-        guideLine = GetComponent<LineRenderer>();
-        netcom = GameObject.Find("GameController").GetComponent<NetCom>();
-    }
 
     void Update()
     {
@@ -27,13 +28,27 @@ public class OperationCap : MonoBehaviour
                 {
                     if (unit.GetComponent<UnitControl>().unit_name == UnitName.MEAT)
                     {
-                        netcom.InstrsToSend.Enqueue(new Instr(InstrType.CAPTURE, int.Parse(unit.name), int.Parse(target.name)));
-                        Debug.Log(unit.name + "order to capture" + target.name);
+                        //netcom.InstrsToSend.Enqueue(new Instr(InstrType.CAPTURE, int.Parse(unit.name), int.Parse(target.name)));
+                        UpdateInstruction(unit, target.transform.position,
+                            new Instr
+                            {
+                                type = InstrType.CAPTURE,
+                                id = int.Parse(unit.name),
+                                target_id_building_id = int.Parse(target.name)
+                            });
+                        Debug.Log(unit.name + "order to capture " + target.name);
                     }
                     else
                     {
-                        netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL1, int.Parse(unit.name), int.Parse(target.name)));
-                        Debug.Log(unit.name + "order to skill1" + target.name);
+                        //netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL1, int.Parse(unit.name), int.Parse(target.name)));
+                        UpdateInstruction(unit, target.transform.position,
+                            new Instr
+                            {
+                                type = InstrType.SKILL1,
+                                id = int.Parse(unit.name),
+                                target_id_building_id = int.Parse(target.name)
+                            });
+                        Debug.Log(unit.name + "order to skill1 " + target.name);
                     }
                 }
             }
@@ -46,7 +61,14 @@ public class OperationCap : MonoBehaviour
             {
                 foreach (var unit in box.selectedUnits)
                 {
-                    netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL2, int.Parse(unit.name), 0, target, Position.zero));
+                    //netcom.InstrsToSend.Enqueue(new Instr(InstrType.SKILL2, int.Parse(unit.name), 0, target, Position.zero));
+                    UpdateInstruction(unit, target.Center(0),
+                        new Instr
+                        {
+                            type = InstrType.SKILL1,
+                            id = int.Parse(unit.name),
+                            pos1 = target
+                        });
                     Debug.Log(unit.name + string.Format("order to skill2 at ({0},{1})", target.x, target.y));
                 }
             }
@@ -57,7 +79,20 @@ public class OperationCap : MonoBehaviour
             var producer = HitUnit(1 << producerLayer|1<<shootableLayer);
             if (producer != null)
             {
-                netcom.InstrsToSend.Enqueue(new Instr(InstrType.PRODUCE, int.Parse(producer.name)));
+                if (lines.ContainsKey(producer))
+                {
+                    lines.Remove(producer);
+                }
+                //netcom.InstrsToSend.Enqueue(new Instr(InstrType.PRODUCE, int.Parse(producer.name)));
+                lines.Add(producer, new Instruction
+                {
+                    ins =
+                    new Instr
+                    {
+                        type = InstrType.PRODUCE,
+                        id = int.Parse(producer.name)
+                    }
+                });
                 Debug.Log(producer.name + "order to produce");
             }
         }
@@ -68,7 +103,6 @@ public class OperationCap : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, 1 << shootableLayer) && hit.collider.gameObject.name == "Terrain")
         {
-            RenderGuideLine(hit.point);
             pos = Position.InsideWhere(hit.point);
             return true;
         }
@@ -82,7 +116,6 @@ public class OperationCap : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, float.MaxValue, layerMask))
         {
-            RenderGuideLine(hit.point);
             return hit.collider.gameObject;
         }
         else
@@ -91,24 +124,15 @@ public class OperationCap : MonoBehaviour
         }
     }
 
-    void RenderGuideLine(Vector3 point)
+    void UpdateInstruction(GameObject unit,Vector3 point,Instr ins)
     {
-        var positions = new Vector3[2];
-        foreach (var unit in box.selectedUnits)
+        if (lines.ContainsKey(unit))
         {
-            positions[0] += unit.transform.position;
+            Destroy(lines[unit].line);
+            lines.Remove(unit);
         }
-        positions[0] /= box.selectedUnits.Count;
-        positions[1] = point;
-
-        guideLine.enabled = true;
-        guideLine.SetPositions(positions);
-        StartCoroutine("GuidelineDisappear");
-    }
-
-    IEnumerator GuidelineDisappear()
-    {
-        yield return new WaitForSeconds(0.5f);
-        guideLine.enabled = false;
+        var line = Instantiate(guideLine, gameObject.transform);
+        line.GetComponent<LineRenderer>().SetPositions(new[] { unit.transform.position, point });
+        lines.Add(unit, new Instruction { ins = ins, line = line });
     }
 }

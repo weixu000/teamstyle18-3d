@@ -152,19 +152,19 @@ public class Instr
 
     }
 
-    public Instr(InstrType _type, int _id, int _target, Position _pos1, Position _pos2)
-        :this(_type,_id,_target)
-    {
-        pos1 = _pos1;
-        pos2 = _pos2;
-    }
+    //public Instr(InstrType _type, int _id, int _target, Position _pos1, Position _pos2)
+    //    :this(_type,_id,_target)
+    //{
+    //    pos1 = _pos1;
+    //    pos2 = _pos2;
+    //}
 
-    public Instr(InstrType _type, int _id, int _target = 0)
-    {
-        type = _type;
-        id = _id;
-        target_id_building_id = _target;
-    }
+    //public Instr(InstrType _type, int _id, int _target = 0)
+    //{
+    //    type = _type;
+    //    id = _id;
+    //    target_id_building_id = _target;
+    //}
 };
 
 [Serializable]
