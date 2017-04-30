@@ -214,8 +214,16 @@ public class NetCom : MonoBehaviour
                         GameObject unit = GameObject.Find(ins.id.ToString()), target = GameObject.Find(ins.target_id_building_id.ToString());
                         if (unit && target)
                         {
-                            temp.Add(ins.id);
-                            unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            if(unit.GetComponent<UnitControl>().unit_type == UnitType.BASE)
+                            {
+                                //主基地炮塔
+                                unit.GetComponent<BaseControl>().Skill1(ins.pos1);
+                            }
+                            else
+                            {
+                                temp.Add(ins.id);
+                                unit.GetComponent<InvasiveControl>().Skill1(ins.target_id_building_id);
+                            }
                         }
                     }
                     break;
@@ -224,8 +232,16 @@ public class NetCom : MonoBehaviour
                         var unit = GameObject.Find(ins.id.ToString());
                         if (unit)
                         {
-                            temp.Add(ins.id);
-                            unit.GetComponent<InvasiveControl>().Skill2(ins.pos1, ins.pos2);
+                            if (unit.GetComponent<UnitControl>().unit_type == UnitType.BUILDING)
+                            {
+                                // 建筑二技能
+                                unit.GetComponent<ProducerControl>().Skill2(ins.target_id_building_id, ins.pos1);
+                            }
+                            else
+                            {
+                                temp.Add(ins.id);
+                                unit.GetComponent<InvasiveControl>().Skill2(ins.pos1, ins.pos2);
+                            }
                         }
                     }
                     break;

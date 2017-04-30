@@ -2,6 +2,7 @@
 
 public class ProducerControl : UnitControl {
     public GameObject display1, display2;
+    public GameObject selfSkill2, targetSkill2;
 
     public override void SetState(UnitState state)
     {
@@ -21,5 +22,27 @@ public class ProducerControl : UnitControl {
             }
         }
         base.SetState(state);
+    }
+
+    public virtual void Skill2(int target_id, Position pos)
+    {
+        try
+        {
+            Instantiate(selfSkill2, transform);
+            switch (unit_name)
+            {
+                case UnitName.BUILD_LAB:
+                    Instantiate(targetSkill2, pos.Center(0), Quaternion.identity);
+                    break;
+                case UnitName.FINANCE_LAB:
+                case UnitName.MATERIAL_LAB:
+                    Instantiate(targetSkill2, GameObject.Find(target_id.ToString()).transform);
+                    break;
+            }
+        }
+        finally
+        {
+            Debug.Log(name + " skill2");
+        }
     }
 }
