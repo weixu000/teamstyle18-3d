@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class OperationCap : MonoBehaviour
 {
-    public SelectionBox box;
     public GameObject guideLine;
     public NetCom netcom;
+
+    SelectionBox box;
 
     class Instruction
     {
@@ -16,6 +17,11 @@ public class OperationCap : MonoBehaviour
     Dictionary<GameObject, Instruction> lines = new Dictionary<GameObject, Instruction>();
 
     const int shootableLayer = 8, producerLayer = 9;
+
+    void Awake()
+    {
+        box = GetComponent<SelectionBox>();
+    }
 
     void Update()
     {
