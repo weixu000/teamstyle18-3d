@@ -28,17 +28,17 @@ public class ProducerControl : UnitControl {
     {
         try
         {
-            Instantiate(selfSkill2, transform);
             switch (unit_name)
             {
                 case UnitName.BUILD_LAB:
-                    Instantiate(targetSkill2, pos.Center(0), Quaternion.identity);
+                    Instantiate(targetSkill2, pos.Center(0), targetSkill2.transform.rotation);
                     break;
                 case UnitName.FINANCE_LAB:
                 case UnitName.MATERIAL_LAB:
                     Instantiate(targetSkill2, GameObject.Find(target_id.ToString()).transform);
                     break;
             }
+            Instantiate(selfSkill2, transform);
         }
         finally
         {
