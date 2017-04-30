@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class ProducerControl : UnitControl {
     public GameObject display1, display2;
@@ -40,9 +41,10 @@ public class ProducerControl : UnitControl {
             }
             Instantiate(selfSkill2, transform);
         }
-        finally
+        catch(Exception)
         {
-            Debug.Log(name + " skill2");
+
         }
+        Debug.Log(name + " skill2");
     }
 }
