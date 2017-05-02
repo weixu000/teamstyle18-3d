@@ -3,7 +3,7 @@
 public class ShellDstroy : MonoBehaviour
 {
     NetCom com;
-    int started;
+    public int started;
 
 	void Awake () {
         com = GameObject.Find("GameController").GetComponent<NetCom>();
@@ -14,7 +14,7 @@ public class ShellDstroy : MonoBehaviour
 	void Update () {
 		if(com.round - started >= 10)
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
 	}
 }

@@ -18,7 +18,7 @@ public class Clicker : MonoBehaviour {
 	void Update () {
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
-            if (hit.collider != null && hit.collider.gameObject.name != "Terrain")
+            if (hit.collider.tag == "selectable")
             {
                 hitObject = hit.collider.gameObject;
                 if (Input.GetMouseButtonDown(0))
