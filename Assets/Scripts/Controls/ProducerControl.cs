@@ -36,10 +36,13 @@ public class ProducerControl : UnitControl {
                     break;
                 case UnitName.FINANCE_LAB:
                 case UnitName.MATERIAL_LAB:
-                    Instantiate(targetSkill2, GameObject.Find(target_id.ToString()).transform);
+                    Instantiate(targetSkill2, GameObject.Find(target_id.ToString()).transform, false);
+                    break;
+                default:
+                    if (selfSkill2 != null)
+                        Instantiate(selfSkill2, transform, false);
                     break;
             }
-            Instantiate(selfSkill2, transform);
         }
         catch(Exception)
         {
